@@ -9,15 +9,19 @@ interface TrackCardProps {
   title: string;
   artist: string;
   pixels: number;
+  coverArtUrl?: string;
 }
 
-export function TrackCard({ id, title, artist, pixels }: TrackCardProps) {
+export function TrackCard({ id, title, artist, pixels, coverArtUrl }: TrackCardProps) {
   const { play } = usePlayerStore();
 
   return (
     <div className="group relative w-full bg-[var(--color-pw-surface-100)] border-2 border-black rounded-xl p-4 shadow-brutal hover:shadow-brutal-hover hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300 flex flex-col">
       {/* Art Placeholder */}
       <div className="w-full aspect-square bg-[var(--color-pw-surface-200)] border-2 border-black rounded-lg mb-4 relative overflow-hidden">
+        {coverArtUrl && (
+          <img src={coverArtUrl} alt={`${title} cover`} className="w-full h-full object-cover" />
+        )}
         {/* Hover overlay with play button */}
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button 
