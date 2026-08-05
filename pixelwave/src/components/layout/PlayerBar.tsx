@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayerStore } from "@/stores/playerStore";
-import ReactPlayer from "react-player";
+import ReactPlayerComponent from "react-player";
+const ReactPlayer = ReactPlayerComponent as any;
 import { fetchApi } from "@/lib/api";
 import { useUserStore } from "@/stores/userStore";
 
@@ -78,7 +79,7 @@ export function PlayerBar() {
       {/* Hidden Player */}
       {url && (
         <div className="hidden">
-          {/* @ts-ignore */}
+
           <ReactPlayer
             ref={playerRef}
             url={url}
