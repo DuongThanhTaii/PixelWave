@@ -18,7 +18,7 @@ export const getFandoms = async (req: Request, res: Response): Promise<void> => 
       }
     });
 
-    const serialized = fandoms.map(f => ({
+    const serialized = fandoms.map((f: any) => ({
       ...f,
       totalPixels: f.totalPixels.toString(),
       totalStreams: f.totalStreams.toString()

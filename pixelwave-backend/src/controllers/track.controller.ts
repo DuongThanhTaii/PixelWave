@@ -18,7 +18,7 @@ export const getTracks = async (req: Request, res: Response): Promise<void> => {
       }
     });
 
-    const serialized = tracks.map(t => ({
+    const serialized = tracks.map((t: any) => ({
       ...t,
       playCount: t.playCount.toString()
     }));

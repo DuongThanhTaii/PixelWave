@@ -32,7 +32,7 @@ export const logSession = async (req: Request, res: Response): Promise<void> => 
     const xpEarned = 50;
 
     // Secure database transaction to prevent race conditions and ensure data consistency
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // 1. Create Listening Session
       await tx.listeningSession.create({
         data: {
