@@ -78,6 +78,7 @@ export function PlayerBar() {
       {/* Hidden Player */}
       {url && (
         <div className="hidden">
+          {/* @ts-ignore */}
           <ReactPlayer
             ref={playerRef}
             url={url}
