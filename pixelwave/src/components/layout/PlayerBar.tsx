@@ -83,8 +83,8 @@ export function PlayerBar() {
             url={url}
             playing={isPlaying}
             volume={volume}
-            onProgress={handleProgress}
-            onDuration={setDuration}
+            onProgress={handleProgress as any}
+            onDuration={setDuration as any}
             onEnded={() => pause()}
           />
         </div>
