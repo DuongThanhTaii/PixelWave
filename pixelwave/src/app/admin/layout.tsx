@@ -7,10 +7,24 @@ import { useUserStore } from '@/stores/userStore';
 import { LayoutDashboard, Music, Users, Disc3, Star, ShieldCheck } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn, role } = useUserStore();
+  const { isLoggedIn, role, token, fetchProfile } = useUserStore();
   const pathname = usePathname();
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+    if (token && !role) {
+      fetchProfile();
+    }
+  }, [token, role, fetchProfile]);
+
+  if (!isClient) return null; // Avoid hydration mismatch
 
   if (!isLoggedIn || (role !== 'ADMIN' && role !== 'MODERATOR')) {
+    // If token exists but role is not yet loaded, show loading instead of denying immediately
+    if (token && role === null) {
+      return <div className="p-8 text-center text-white font-display text-2xl">Loading Admin Data...</div>;
+    }
     return <div className="p-8 text-center text-white font-display text-2xl">Access Denied. Admins or Moderators only.</div>;
   }
 

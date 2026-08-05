@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createArtist, createFandom, createTrack, updateTrackLyrics, updateRole, createAlbum, fetchYoutubeLyrics } from '../controllers/admin.controller';
+import { createArtist, createFandom, createTrack, updateTrackLyrics, updateRole, createAlbum, fetchYoutubeLyrics, getAdminStats, getArtists, getAlbums, getTracks, getFandoms } from '../controllers/admin.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { roleMiddleware } from '../middlewares/role.middleware';
 import { Role } from '@prisma/client';
@@ -8,6 +8,12 @@ const router = Router();
 
 // Secure all admin routes
 router.use(authMiddleware);
+
+router.get('/stats', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getAdminStats);
+router.get('/artists', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getArtists);
+router.get('/albums', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getAlbums);
+router.get('/tracks', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getTracks);
+router.get('/fandoms', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getFandoms);
 
 router.post('/artists', roleMiddleware([Role.ADMIN, Role.MODERATOR]), createArtist);
 router.post('/albums', roleMiddleware([Role.ADMIN, Role.MODERATOR]), createAlbum);

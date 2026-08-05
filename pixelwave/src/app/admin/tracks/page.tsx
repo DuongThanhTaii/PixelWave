@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
 export default function TracksAdmin() {
   const [status, setStatus] = useState('');
@@ -17,6 +18,32 @@ export default function TracksAdmin() {
   const [trackAudioFile, setTrackAudioFile] = useState<File | null>(null);
   const [trackCoverFile, setTrackCoverFile] = useState<File | null>(null);
   const [trackCoverUrl, setTrackCoverUrl] = useState('');
+  
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [artists, setArtists] = useState<{value: string, label: string}[]>([]);
+  const [albums, setAlbums] = useState<{value: string, label: string}[]>([]);
+  const [fandoms, setFandoms] = useState<{value: string, label: string}[]>([]);
+
+  const loadData = async () => {
+    try {
+      const [tracksRes, artistsRes, albumsRes, fandomsRes] = await Promise.all([
+        fetchApi('/admin/tracks'),
+        fetchApi('/admin/artists'),
+        fetchApi('/admin/albums'),
+        fetchApi('/admin/fandoms')
+      ]) as any[];
+      if (tracksRes.success) setTracks(tracksRes.data);
+      if (artistsRes.success) setArtists(artistsRes.data.map((a: any) => ({ value: a.id, label: a.name })));
+      if (albumsRes.success) setAlbums(albumsRes.data.map((a: any) => ({ value: a.id, label: a.title })));
+      if (fandomsRes.success) setFandoms(fandomsRes.data.map((a: any) => ({ value: a.id, label: a.name })));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleUploadFile = async (file: File) => {
     const formData = new FormData();
@@ -155,6 +182,7 @@ export default function TracksAdmin() {
       setTrackAudioFile(null);
       setTrackCoverFile(null);
       setTrackCoverUrl('');
+      loadData();
     } catch (err: any) {
       console.error(err);
       setStatus(`Error: ${err.message}`);
@@ -216,9 +244,37 @@ export default function TracksAdmin() {
               </div>
             </div>
 
-            <input type="text" placeholder="Artist ID (Required)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.artistId} onChange={e => setTrackData({...trackData, artistId: e.target.value})} />
-            <input type="text" placeholder="Album ID (Optional)" className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.albumId} onChange={e => setTrackData({...trackData, albumId: e.target.value})} />
-            <input type="text" placeholder="Fandom ID (Optional)" className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.fandomId} onChange={e => setTrackData({...trackData, fandomId: e.target.value})} />
+            <div>
+              <span className="font-bold block mb-1">Artist <span className="text-red-500">*</span></span>
+              <SearchableSelect 
+                options={artists}
+                value={trackData.artistId}
+                onChange={(val) => setTrackData({...trackData, artistId: val})}
+                placeholder="Select Artist..."
+                required
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <span className="font-bold block mb-1">Album (Optional)</span>
+                <SearchableSelect 
+                  options={albums}
+                  value={trackData.albumId}
+                  onChange={(val) => setTrackData({...trackData, albumId: val})}
+                  placeholder="Select Album..."
+                />
+              </div>
+              <div className="flex-1">
+                <span className="font-bold block mb-1">Fandom (Optional)</span>
+                <SearchableSelect 
+                  options={fandoms}
+                  value={trackData.fandomId}
+                  onChange={(val) => setTrackData({...trackData, fandomId: val})}
+                  placeholder="Select Fandom..."
+                />
+              </div>
+            </div>
             
             {uploadMode === 'manual' && (
               <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
@@ -259,6 +315,44 @@ export default function TracksAdmin() {
             <button type="submit" className="bg-[var(--color-pw-hot-pink)] text-white border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Track</button>
           </form>
         )}
+      </section>
+
+      <section className="mt-8 border-2 border-black p-4 md:p-6 bg-white shadow-[4px_4px_0_0_#000]">
+        <h2 className="font-display text-2xl font-bold mb-4 uppercase">Existing Tracks</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-data text-sm border-collapse">
+            <thead>
+              <tr className="bg-[var(--color-pw-neon-lime)] border-b-2 border-black">
+                <th className="p-2 border-r-2 border-black">Cover</th>
+                <th className="p-2 border-r-2 border-black">Title</th>
+                <th className="p-2 border-r-2 border-black">Artist</th>
+                <th className="p-2 border-r-2 border-black">Album</th>
+                <th className="p-2 border-r-2 border-black">Source</th>
+                <th className="p-2">Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tracks.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-4 text-center">No tracks found.</td>
+                </tr>
+              ) : (
+                tracks.map((track: any) => (
+                  <tr key={track.id} className="border-b border-gray-300 hover:bg-gray-50">
+                    <td className="p-2 border-r border-gray-300">
+                      {track.coverArtUrl ? <img src={track.coverArtUrl} alt={track.title} className="w-10 h-10 object-cover border-2 border-black rounded" /> : '-'}
+                    </td>
+                    <td className="p-2 border-r border-gray-300 font-bold">{track.title}</td>
+                    <td className="p-2 border-r border-gray-300">{track.artist?.name || 'Unknown'}</td>
+                    <td className="p-2 border-r border-gray-300">{track.album?.title || '-'}</td>
+                    <td className="p-2 border-r border-gray-300 uppercase text-xs">{track.source}</td>
+                    <td className="p-2">{new Date(track.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

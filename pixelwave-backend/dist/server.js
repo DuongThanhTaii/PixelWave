@@ -5,6 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config(); // Must be called before any imports that use env variables
+// Patch BigInt globally to prevent JSON stringify errors
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
 const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");

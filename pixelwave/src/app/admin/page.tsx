@@ -1,10 +1,20 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUserStore } from '@/stores/userStore';
+import { fetchApi } from '@/lib/api';
 
 export default function AdminDashboard() {
   const { username, role } = useUserStore();
+  const [stats, setStats] = useState({ tracks: '...', artists: '...', fandoms: '...' });
+
+  useEffect(() => {
+    fetchApi('/admin/stats').then((res: any) => {
+      if (res.success) {
+        setStats(res.data);
+      }
+    }).catch(console.error);
+  }, []);
 
   return (
     <div>
@@ -13,23 +23,23 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
-        {/* Placeholder Stats Cards */}
-        <div className="bg-[var(--color-pw-vibrant-blue)] text-white p-6 border-4 border-black shadow-[4px_4px_0_0_#000]">
+        <div className="bg-[var(--color-pw-vibrant-blue)] text-black p-6 border-4 border-black shadow-[4px_4px_0_0_#000]">
           <h3 className="font-display font-bold uppercase text-xl mb-2">Total Tracks</h3>
-          <p className="text-4xl font-black">---</p>
+          <p className="text-4xl font-black">{stats.tracks}</p>
         </div>
 
         <div className="bg-[var(--color-pw-neon-lime)] text-black p-6 border-4 border-black shadow-[4px_4px_0_0_#000]">
           <h3 className="font-display font-bold uppercase text-xl mb-2">Total Artists</h3>
-          <p className="text-4xl font-black">---</p>
+          <p className="text-4xl font-black">{stats.artists}</p>
         </div>
 
-        <div className="bg-[var(--color-pw-hot-pink)] text-white p-6 border-4 border-black shadow-[4px_4px_0_0_#000]">
+        <div className="bg-[var(--color-pw-hot-pink)] text-black p-6 border-4 border-black shadow-[4px_4px_0_0_#000]">
           <h3 className="font-display font-bold uppercase text-xl mb-2">Total Fandoms</h3>
-          <p className="text-4xl font-black">---</p>
+          <p className="text-4xl font-black">{stats.fandoms}</p>
         </div>
 
       </div>
     </div>
   );
 }
+

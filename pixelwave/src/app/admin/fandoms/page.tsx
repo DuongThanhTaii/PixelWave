@@ -7,6 +7,22 @@ export default function FandomsAdmin() {
   const [status, setStatus] = useState('');
   const [fandomData, setFandomData] = useState({ name: '', slug: '', color: '#000000', iconUrl: '' });
   const [fandomFile, setFandomFile] = useState<File | null>(null);
+  const [fandoms, setFandoms] = useState<any[]>([]);
+
+  const loadFandoms = async () => {
+    try {
+      const res: any = await fetchApi('/admin/fandoms');
+      if (res.success) {
+        setFandoms(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  React.useEffect(() => {
+    loadFandoms();
+  }, []);
 
   const handleUploadFile = async (file: File) => {
     const formData = new FormData();
@@ -41,6 +57,7 @@ export default function FandomsAdmin() {
       setStatus('Fandom created successfully!');
       setFandomData({ name: '', slug: '', color: '#000000', iconUrl: '' });
       setFandomFile(null);
+      loadFandoms();
     } catch (err: any) {
       console.error(err);
       setStatus(`Error: ${err.message}`);
@@ -76,6 +93,47 @@ export default function FandomsAdmin() {
 
           <button type="submit" className="bg-[var(--color-pw-vibrant-blue)] text-white border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Fandom</button>
         </form>
+      </section>
+
+      <section className="mt-8 border-2 border-black p-4 md:p-6 bg-white shadow-[4px_4px_0_0_#000]">
+        <h2 className="font-display text-2xl font-bold mb-4 uppercase">Existing Fandoms</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-data text-sm border-collapse">
+            <thead>
+              <tr className="bg-[var(--color-pw-neon-lime)] border-b-2 border-black">
+                <th className="p-2 border-r-2 border-black">Icon</th>
+                <th className="p-2 border-r-2 border-black">Name</th>
+                <th className="p-2 border-r-2 border-black">Color</th>
+                <th className="p-2 border-r-2 border-black">ID</th>
+                <th className="p-2">Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fandoms.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-4 text-center">No fandoms found.</td>
+                </tr>
+              ) : (
+                fandoms.map((fandom: any) => (
+                  <tr key={fandom.id} className="border-b border-gray-300 hover:bg-gray-50">
+                    <td className="p-2 border-r border-gray-300">
+                      {fandom.iconUrl ? <img src={fandom.iconUrl} alt={fandom.name} className="w-10 h-10 object-cover border-2 border-black rounded-full" /> : '-'}
+                    </td>
+                    <td className="p-2 border-r border-gray-300 font-bold">{fandom.name}</td>
+                    <td className="p-2 border-r border-gray-300">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border border-black" style={{ backgroundColor: fandom.color }}></div>
+                        <span>{fandom.color}</span>
+                      </div>
+                    </td>
+                    <td className="p-2 border-r border-gray-300 text-xs font-mono">{fandom.id}</td>
+                    <td className="p-2">{new Date(fandom.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

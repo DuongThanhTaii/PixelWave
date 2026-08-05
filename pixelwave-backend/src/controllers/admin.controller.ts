@@ -193,3 +193,57 @@ export const fetchYoutubeLyrics = async (req: Request, res: Response): Promise<v
     res.status(500).json({ success: false, message: error.message || 'Failed to fetch youtube lyrics' });
   }
 };
+
+export const getAdminStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const trackCount = await prisma.track.count();
+    const artistCount = await prisma.artist.count();
+    const fandomCount = await prisma.fandom.count();
+    res.status(200).json({ success: true, data: { tracks: trackCount, artists: artistCount, fandoms: fandomCount } });
+  } catch (error: any) {
+    console.error('getAdminStats error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch admin stats' });
+  }
+};
+
+export const getArtists = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const artists = await prisma.artist.findMany({ orderBy: { createdAt: 'desc' } });
+    res.status(200).json({ success: true, data: artists });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch artists' });
+  }
+};
+
+export const getAlbums = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const albums = await prisma.album.findMany({ 
+      orderBy: { createdAt: 'desc' },
+      include: { artist: { select: { name: true } } }
+    });
+    res.status(200).json({ success: true, data: albums });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch albums' });
+  }
+};
+
+export const getTracks = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tracks = await prisma.track.findMany({ 
+      orderBy: { createdAt: 'desc' },
+      include: { artist: { select: { name: true } }, album: { select: { title: true } } }
+    });
+    res.status(200).json({ success: true, data: tracks });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch tracks' });
+  }
+};
+
+export const getFandoms = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const fandoms = await prisma.fandom.findMany({ orderBy: { createdAt: 'desc' } });
+    res.status(200).json({ success: true, data: fandoms });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch fandoms' });
+  }
+};
