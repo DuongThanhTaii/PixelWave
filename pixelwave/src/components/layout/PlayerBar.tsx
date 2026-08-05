@@ -13,7 +13,7 @@ export function PlayerBar() {
   const [played, setPlayed] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [duration, setDuration] = useState(0);
-  const playerRef = useRef<ReactPlayer>(null);
+  const playerRef = useRef<any>(null);
   const lastSavedPosition = useRef<number>(0);
 
   // Fetch resume position when track changes
