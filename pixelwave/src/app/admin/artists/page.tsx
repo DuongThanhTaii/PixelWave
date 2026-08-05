@@ -5,7 +5,7 @@ import { fetchApi } from '@/lib/api';
 
 export default function ArtistsAdmin() {
   const [status, setStatus] = useState('');
-  const [artistData, setArtistData] = useState({ name: '', slug: '', bio: '' });
+  const [artistData, setArtistData] = useState({ name: '', slug: '', bio: '', avatarUrl: '' });
   const [artistFile, setArtistFile] = useState<File | null>(null);
 
   const handleUploadFile = async (file: File) => {
@@ -30,7 +30,7 @@ export default function ArtistsAdmin() {
     e.preventDefault();
     setStatus('Creating artist... Uploading avatar if any...');
     try {
-      let avatarUrl = '';
+      let avatarUrl = artistData.avatarUrl;
       if (artistFile) {
         avatarUrl = await handleUploadFile(artistFile);
       }
@@ -39,7 +39,7 @@ export default function ArtistsAdmin() {
         body: JSON.stringify({ ...artistData, avatarUrl })
       });
       setStatus('Artist created successfully!');
-      setArtistData({ name: '', slug: '', bio: '' });
+      setArtistData({ name: '', slug: '', bio: '', avatarUrl: '' });
       setArtistFile(null);
     } catch (err: any) {
       console.error(err);
@@ -63,7 +63,9 @@ export default function ArtistsAdmin() {
           <input type="text" placeholder="Slug" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={artistData.slug} onChange={e => setArtistData({...artistData, slug: e.target.value})} />
           <textarea placeholder="Bio" rows={3} className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={artistData.bio} onChange={e => setArtistData({...artistData, bio: e.target.value})} />
           <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-black bg-gray-50">
-            <span className="font-bold">Avatar Upload</span>
+            <span className="font-bold">Avatar</span>
+            <input type="text" placeholder="Avatar Image URL" className="border-2 border-black p-2 outline-none focus:bg-white mb-2" value={artistData.avatarUrl} onChange={e => setArtistData({...artistData, avatarUrl: e.target.value})} />
+            <span className="text-xs text-gray-500">OR Upload Avatar File</span>
             <input type="file" accept="image/*" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-neon-lime)] file:text-black file:cursor-pointer hover:file:opacity-90" onChange={e => setArtistFile(e.target.files?.[0] || null)} />
           </div>
           <button type="submit" className="bg-[var(--color-pw-surface-100)] text-black border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Artist</button>

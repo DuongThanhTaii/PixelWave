@@ -5,7 +5,7 @@ import { fetchApi } from '@/lib/api';
 
 export default function AlbumsAdmin() {
   const [status, setStatus] = useState('');
-  const [albumData, setAlbumData] = useState({ title: '', slug: '', artistId: '' });
+  const [albumData, setAlbumData] = useState({ title: '', slug: '', artistId: '', artworkUrl: '' });
   const [albumFile, setAlbumFile] = useState<File | null>(null);
 
   const handleUploadFile = async (file: File) => {
@@ -30,7 +30,7 @@ export default function AlbumsAdmin() {
     e.preventDefault();
     setStatus('Creating album... Uploading artwork if any...');
     try {
-      let artworkUrl = '';
+      let artworkUrl = albumData.artworkUrl;
       if (albumFile) {
         artworkUrl = await handleUploadFile(albumFile);
       }
@@ -39,7 +39,7 @@ export default function AlbumsAdmin() {
         body: JSON.stringify({ ...albumData, artworkUrl })
       });
       setStatus('Album created successfully!');
-      setAlbumData({ title: '', slug: '', artistId: '' });
+      setAlbumData({ title: '', slug: '', artistId: '', artworkUrl: '' });
       setAlbumFile(null);
     } catch (err: any) {
       console.error(err);
@@ -64,7 +64,9 @@ export default function AlbumsAdmin() {
           <input type="text" placeholder="Artist ID" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={albumData.artistId} onChange={e => setAlbumData({...albumData, artistId: e.target.value})} />
           
           <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-black bg-gray-50">
-            <span className="font-bold">Artwork Upload</span>
+            <span className="font-bold">Artwork</span>
+            <input type="text" placeholder="Artwork Image URL" className="border-2 border-black p-2 outline-none focus:bg-white mb-2" value={albumData.artworkUrl} onChange={e => setAlbumData({...albumData, artworkUrl: e.target.value})} />
+            <span className="text-xs text-gray-500">OR Upload Artwork File</span>
             <input type="file" accept="image/*" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-neon-lime)] file:text-black file:cursor-pointer hover:file:opacity-90" onChange={e => setAlbumFile(e.target.files?.[0] || null)} />
           </div>
 

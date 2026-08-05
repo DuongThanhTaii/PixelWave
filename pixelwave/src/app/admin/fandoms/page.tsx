@@ -30,7 +30,7 @@ export default function FandomsAdmin() {
     e.preventDefault();
     setStatus('Creating fandom... Uploading icon if any...');
     try {
-      let iconUrl = '';
+      let iconUrl = fandomData.iconUrl;
       if (fandomFile) {
         iconUrl = await handleUploadFile(fandomFile);
       }
@@ -68,7 +68,9 @@ export default function FandomsAdmin() {
           </div>
 
           <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-black bg-gray-50">
-            <span className="font-bold">Icon Upload</span>
+            <span className="font-bold">Icon</span>
+            <input type="text" placeholder="Icon Image URL" className="border-2 border-black p-2 outline-none focus:bg-white mb-2" value={fandomData.iconUrl} onChange={e => setFandomData({...fandomData, iconUrl: e.target.value})} />
+            <span className="text-xs text-gray-500">OR Upload Icon File</span>
             <input type="file" accept="image/*" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-neon-lime)] file:text-black file:cursor-pointer hover:file:opacity-90" onChange={e => setFandomFile(e.target.files?.[0] || null)} />
           </div>
 
