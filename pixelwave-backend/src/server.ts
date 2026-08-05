@@ -1,6 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config(); // Must be called before any imports that use env variables
 
+// Patch BigInt globally to prevent JSON stringify errors
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
