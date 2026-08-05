@@ -7,6 +7,10 @@ export default function TracksAdmin() {
   const [status, setStatus] = useState('');
   const [isFetchingLyrics, setIsFetchingLyrics] = useState(false);
 
+  const [uploadMode, setUploadMode] = useState<'manual' | 'youtube' | null>(null);
+  const [youtubeInput, setYoutubeInput] = useState('');
+  const [isFetchingYoutubeInfo, setIsFetchingYoutubeInfo] = useState(false);
+
   const [trackData, setTrackData] = useState({
     title: '', slug: '', artistId: '', albumId: '', fandomId: '', youtubeVideoId: '', lyrics: '', durationMs: 0
   });
@@ -32,9 +36,46 @@ export default function TracksAdmin() {
     throw new Error(data.message || 'Upload failed');
   };
 
-  const generateYoutubeCover = () => {
-    if (trackData.youtubeVideoId) {
-      setTrackCoverUrl(`https://img.youtube.com/vi/${trackData.youtubeVideoId}/maxresdefault.jpg`);
+  const fetchYoutubeInfo = async () => {
+    if (!youtubeInput) {
+      setStatus('Please enter a YouTube Video URL or ID.');
+      return;
+    }
+    
+    // Extract ID
+    let videoId = youtubeInput;
+    if (youtubeInput.includes('v=')) {
+      videoId = youtubeInput.split('v=')[1].split('&')[0];
+    } else if (youtubeInput.includes('youtu.be/')) {
+      videoId = youtubeInput.split('youtu.be/')[1].split('?')[0];
+    }
+    
+    setIsFetchingYoutubeInfo(true);
+    setStatus('Fetching YouTube info...');
+    try {
+      // Using noembed to avoid direct CORS block on some environments, or fallback to manual
+      const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+      const data = await res.json();
+      
+      if (data.error) {
+        setStatus(`Error fetching info: ${data.error}`);
+      } else {
+        setTrackData(prev => ({ 
+          ...prev, 
+          title: data.title, 
+          slug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+          youtubeVideoId: videoId 
+        }));
+        setTrackCoverUrl(data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`);
+        setStatus('YouTube info fetched successfully!');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setStatus('Failed to fetch info, but you can still proceed manually.');
+      setTrackData(prev => ({ ...prev, youtubeVideoId: videoId }));
+      setTrackCoverUrl(`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`);
+    } finally {
+      setIsFetchingYoutubeInfo(false);
     }
   };
 
@@ -130,52 +171,94 @@ export default function TracksAdmin() {
       )}
 
       <section className="border-2 border-black p-4 md:p-6 bg-white shadow-[4px_4px_0_0_#000] max-w-2xl">
-        <h2 className="font-display text-2xl font-bold mb-4 uppercase">Create Track</h2>
-        <form onSubmit={handleCreateTrack} className="flex flex-col gap-4 font-data text-sm">
-          <input type="text" placeholder="Title" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.title} onChange={e => setTrackData({...trackData, title: e.target.value})} />
-          <input type="text" placeholder="Slug" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.slug} onChange={e => setTrackData({...trackData, slug: e.target.value})} />
-          <input type="text" placeholder="Artist ID (Required)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.artistId} onChange={e => setTrackData({...trackData, artistId: e.target.value})} />
-          <input type="text" placeholder="Album ID (Optional)" className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.albumId} onChange={e => setTrackData({...trackData, albumId: e.target.value})} />
-          <input type="text" placeholder="Fandom ID (Optional)" className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.fandomId} onChange={e => setTrackData({...trackData, fandomId: e.target.value})} />
-          
-          <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
-            <span className="font-bold">Source: Audio Upload</span>
-            <input type="file" accept="audio/mpeg" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-vibrant-blue)] file:text-white file:cursor-pointer hover:file:opacity-90" onChange={e => setTrackAudioFile(e.target.files?.[0] || null)} />
-          </div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-display text-2xl font-bold uppercase">Create Track</h2>
+          {uploadMode && (
+            <button onClick={() => setUploadMode(null)} className="text-sm underline font-bold">Change Mode</button>
+          )}
+        </div>
 
-          <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
-            <span className="font-bold">Source: YouTube</span>
-            <input type="text" placeholder="YouTube Video ID (e.g. dQw4w9WgXcQ)" className="border-2 border-black p-2 outline-none focus:bg-white" value={trackData.youtubeVideoId} onChange={e => setTrackData({...trackData, youtubeVideoId: e.target.value})} />
-            <button type="button" onClick={generateYoutubeCover} className="self-start bg-[var(--color-pw-surface-100)] border-2 border-black px-4 py-1 font-bold shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">Generate Cover Art</button>
+        {!uploadMode && (
+          <div className="flex flex-col md:flex-row gap-4 mt-6">
+            <button onClick={() => setUploadMode('manual')} className="flex-1 border-4 border-black p-6 bg-[var(--color-pw-vibrant-blue)] text-white hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all font-bold uppercase text-lg text-center">
+              📁 Manual Upload
+              <p className="text-xs font-normal mt-2 normal-case">Upload MP3/WAV files directly</p>
+            </button>
+            <button onClick={() => setUploadMode('youtube')} className="flex-1 border-4 border-black p-6 bg-[var(--color-pw-hot-pink)] text-white hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all font-bold uppercase text-lg text-center">
+              ▶️ YouTube Link
+              <p className="text-xs font-normal mt-2 normal-case">Stream via YouTube, auto-fetch info</p>
+            </button>
           </div>
+        )}
 
-          <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
-            <span className="font-bold">Cover Art</span>
-            <input type="text" placeholder="Cover Art URL (Generated/Manual)" className="border-2 border-black p-2 outline-none focus:bg-white" value={trackCoverUrl} onChange={e => setTrackCoverUrl(e.target.value)} />
-            <span className="text-xs text-gray-500">OR Upload Cover File</span>
-            <input type="file" accept="image/*" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-neon-lime)] file:text-black file:cursor-pointer hover:file:opacity-90" onChange={e => setTrackCoverFile(e.target.files?.[0] || null)} />
+        {uploadMode === 'youtube' && !trackData.title && (
+          <div className="flex flex-col gap-4 font-data text-sm mt-4">
+            <div className="border-2 border-dashed border-black p-6 bg-gray-50 flex flex-col gap-3">
+              <span className="font-bold text-lg">Enter YouTube Link</span>
+              <input type="text" placeholder="https://www.youtube.com/watch?v=..." className="border-2 border-black p-3 outline-none focus:bg-white text-base" value={youtubeInput} onChange={e => setYoutubeInput(e.target.value)} />
+              <button type="button" onClick={fetchYoutubeInfo} disabled={isFetchingYoutubeInfo} className="bg-[var(--color-pw-surface-100)] border-2 border-black px-6 py-2 font-bold shadow-[4px_4px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none self-start disabled:opacity-50 text-base">
+                {isFetchingYoutubeInfo ? 'Fetching...' : 'Fetch Info & Proceed'}
+              </button>
+            </div>
           </div>
+        )}
 
-          <input type="number" placeholder="Duration (ms)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.durationMs || ''} onChange={e => setTrackData({...trackData, durationMs: parseInt(e.target.value) || 0})} />
-          
-          <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <span className="font-bold">Lyrics (.lrc format)</span>
-              <div className="flex gap-2">
-                <button type="button" onClick={handleFetchYoutubeLyrics} disabled={isFetchingLyrics} className="bg-gray-200 border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none disabled:opacity-50">
-                  {isFetchingLyrics ? 'Fetching...' : 'Fetch from YouTube'}
-                </button>
-                <label className="bg-[var(--color-pw-vibrant-blue)] text-white border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] cursor-pointer active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
-                  Upload .lrc File
-                  <input type="file" accept=".lrc,.txt" className="hidden" onChange={handleLrcFileUpload} />
-                </label>
+        {uploadMode && (uploadMode === 'manual' || (uploadMode === 'youtube' && trackData.title)) && (
+          <form onSubmit={handleCreateTrack} className="flex flex-col gap-4 font-data text-sm mt-4">
+            
+            <div className="flex gap-4">
+              {uploadMode === 'youtube' && trackCoverUrl && (
+                <img src={trackCoverUrl} alt="Cover Preview" className="w-24 h-24 object-cover border-2 border-black shadow-[2px_2px_0_0_#000]" />
+              )}
+              <div className="flex-1 flex flex-col gap-4">
+                <input type="text" placeholder="Title" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.title} onChange={e => setTrackData({...trackData, title: e.target.value})} />
+                <input type="text" placeholder="Slug" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.slug} onChange={e => setTrackData({...trackData, slug: e.target.value})} />
               </div>
             </div>
-            <textarea placeholder="[00:15.30] Example lyrics line..." rows={6} className="border-2 border-black p-2 outline-none focus:bg-gray-100 w-full font-mono text-xs" value={trackData.lyrics} onChange={e => setTrackData({...trackData, lyrics: e.target.value})} />
-          </div>
-          
-          <button type="submit" className="bg-[var(--color-pw-hot-pink)] text-white border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Track</button>
-        </form>
+
+            <input type="text" placeholder="Artist ID (Required)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.artistId} onChange={e => setTrackData({...trackData, artistId: e.target.value})} />
+            <input type="text" placeholder="Album ID (Optional)" className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.albumId} onChange={e => setTrackData({...trackData, albumId: e.target.value})} />
+            <input type="text" placeholder="Fandom ID (Optional)" className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.fandomId} onChange={e => setTrackData({...trackData, fandomId: e.target.value})} />
+            
+            {uploadMode === 'manual' && (
+              <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
+                <span className="font-bold">Audio Upload (.mp3 / .wav)</span>
+                <input type="file" accept="audio/*" required className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-vibrant-blue)] file:text-white file:cursor-pointer hover:file:opacity-90" onChange={e => setTrackAudioFile(e.target.files?.[0] || null)} />
+              </div>
+            )}
+
+            <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
+              <span className="font-bold">Cover Art</span>
+              {uploadMode === 'manual' && (
+                <input type="text" placeholder="Cover Art URL (Optional)" className="border-2 border-black p-2 outline-none focus:bg-white mb-2" value={trackCoverUrl} onChange={e => setTrackCoverUrl(e.target.value)} />
+              )}
+              <span className="text-xs text-gray-500">{uploadMode === 'youtube' ? 'Override Auto-fetched Cover File (Optional)' : 'Upload Cover File (Optional)'}</span>
+              <input type="file" accept="image/*" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-neon-lime)] file:text-black file:cursor-pointer hover:file:opacity-90" onChange={e => setTrackCoverFile(e.target.files?.[0] || null)} />
+            </div>
+
+            <input type="number" placeholder="Duration (ms)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.durationMs || ''} onChange={e => setTrackData({...trackData, durationMs: parseInt(e.target.value) || 0})} />
+            
+            <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <span className="font-bold">Lyrics (.lrc format)</span>
+                <div className="flex gap-2">
+                  {uploadMode === 'youtube' && (
+                    <button type="button" onClick={handleFetchYoutubeLyrics} disabled={isFetchingLyrics} className="bg-gray-200 border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none disabled:opacity-50">
+                      {isFetchingLyrics ? 'Fetching...' : 'Fetch from YouTube'}
+                    </button>
+                  )}
+                  <label className="bg-[var(--color-pw-vibrant-blue)] text-white border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] cursor-pointer active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+                    Upload .lrc File
+                    <input type="file" accept=".lrc,.txt" className="hidden" onChange={handleLrcFileUpload} />
+                  </label>
+                </div>
+              </div>
+              <textarea placeholder="[00:15.30] Example lyrics line..." rows={6} className="border-2 border-black p-2 outline-none focus:bg-gray-100 w-full font-mono text-xs" value={trackData.lyrics} onChange={e => setTrackData({...trackData, lyrics: e.target.value})} />
+            </div>
+            
+            <button type="submit" className="bg-[var(--color-pw-hot-pink)] text-white border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Track</button>
+          </form>
+        )}
       </section>
     </div>
   );

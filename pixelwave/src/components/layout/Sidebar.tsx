@@ -67,14 +67,7 @@ export function Sidebar() {
 
       {/* Fandom Quick Switch & Auth */}
       <div className="mt-auto pt-4 border-t-2 border-black flex flex-col gap-4">
-        {/* Placeholder Fandom Quick Switch - To be updated in future phases */}
-        <button className="w-full flex items-center justify-between p-3 rounded-lg border-2 border-black bg-[var(--color-pw-surface-200)] hover:bg-[var(--color-pw-surface-300)] transition-all duration-300 shadow-[4px_4px_0px_0px_#000] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[6px_6px_0px_0px_#000]">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-[var(--color-pw-cyan-glow)] border border-black" />
-            <span className="font-semibold text-sm font-body">Fandom-02</span>
-          </div>
-          <ChevronDown className="w-4 h-4" />
-        </button>
+        {/* Placeholder Fandom Quick Switch removed as requested */}
 
         <div>
           {(!mounted) ? (
@@ -82,7 +75,7 @@ export function Sidebar() {
           ) : isLoggedIn ? (
              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-black bg-gray-900 text-white font-bold uppercase tracking-wider hover:-translate-y-0.5 hover:-translate-x-0.5 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-300">
                <LogOut className="w-5 h-5" />
-               Logout {username ? `(${username})` : ''}
+               Logout
              </button>
           ) : (
              <Link href="/login" className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-black bg-[var(--color-pw-hot-pink)] text-white font-bold uppercase tracking-wider hover:-translate-y-0.5 hover:-translate-x-0.5 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-300">
