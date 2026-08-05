@@ -17,8 +17,8 @@ const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinary_1.v2,
     params: {
         folder: 'pixelwave',
-        allowed_formats: ['jpg', 'png', 'webp', 'jpeg'],
-        transformation: [{ width: 1000, height: 1000, crop: 'limit' }]
+        allowed_formats: ['jpg', 'png', 'webp', 'jpeg', 'mp3', 'wav'],
+        resource_type: 'auto'
     }
 });
 exports.upload = (0, multer_1.default)({ storage });

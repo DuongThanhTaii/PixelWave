@@ -9,7 +9,10 @@ const router = (0, express_1.Router)();
 // Secure all admin routes
 router.use(auth_middleware_1.authMiddleware);
 router.post('/artists', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.createArtist);
+router.post('/albums', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.createAlbum);
 router.post('/fandoms', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.createFandom);
-router.post('/tracks', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.createTrack);
-router.put('/tracks/:id/lyrics', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.updateTrackLyrics);
+router.post('/tracks', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR], true), admin_controller_1.createTrack);
+router.put('/tracks/:id/lyrics', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR], true), admin_controller_1.updateTrackLyrics);
+router.post('/tracks/youtube-lyrics', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.fetchYoutubeLyrics);
+router.put('/users/:userId/role', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN]), admin_controller_1.updateRole);
 exports.default = router;

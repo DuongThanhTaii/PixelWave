@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
+import { getSubtitles } from 'youtube-captions-scraper';
 
 export const createArtist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -149,5 +150,46 @@ export const createAlbum = async (req: Request, res: Response): Promise<void> =>
   } catch (error: any) {
     console.error('createAlbum error:', error);
     res.status(500).json({ success: false, message: error.message || 'Failed to create album' });
+  }
+};
+
+export const fetchYoutubeLyrics = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { videoId } = req.body;
+    if (!videoId) {
+      res.status(400).json({ success: false, message: 'videoId is required' });
+      return;
+    }
+
+    const captions = await getSubtitles({
+      videoID: videoId,
+      lang: 'vi' // Default to Vietnamese, if not available it throws, we can try fallback.
+    }).catch(() => getSubtitles({ videoID: videoId, lang: 'en' })); // fallback to English
+
+    if (!captions || captions.length === 0) {
+      res.status(404).json({ success: false, message: 'No lyrics/captions found for this video' });
+      return;
+    }
+
+    // Format as .lrc
+    const lrcLines = captions.map((caption: any) => {
+      const start = parseFloat(caption.start);
+      const minutes = Math.floor(start / 60);
+      const seconds = Math.floor(start % 60);
+      const hundredths = Math.floor((start % 1) * 100);
+      
+      const mm = minutes.toString().padStart(2, '0');
+      const ss = seconds.toString().padStart(2, '0');
+      const xx = hundredths.toString().padStart(2, '0');
+      
+      return `[${mm}:${ss}.${xx}]${caption.text.replace(/\n/g, ' ')}`;
+    });
+
+    const lrcContent = lrcLines.join('\n');
+
+    res.status(200).json({ success: true, data: lrcContent });
+  } catch (error: any) {
+    console.error('fetchYoutubeLyrics error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch youtube lyrics' });
   }
 };

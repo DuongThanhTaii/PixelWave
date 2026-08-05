@@ -141,14 +141,16 @@ const register = async (req, res) => {
 exports.register = register;
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.body; // frontend can send username as email
         if (!email || !password) {
             res.status(400).json({ success: false, message: 'Missing required fields' });
             return;
         }
-        // Find user
-        const user = await prisma_1.prisma.user.findUnique({
-            where: { email }
+        // Find user by email or username
+        const user = await prisma_1.prisma.user.findFirst({
+            where: {
+                OR: [{ email }, { username: email }]
+            }
         });
         if (!user) {
             res.status(401).json({ success: false, message: 'Invalid credentials' });

@@ -17,7 +17,7 @@ const getTracks = async (req, res) => {
                 }
             }
         });
-        const serialized = tracks.map(t => ({
+        const serialized = tracks.map((t) => ({
             ...t,
             playCount: t.playCount.toString()
         }));

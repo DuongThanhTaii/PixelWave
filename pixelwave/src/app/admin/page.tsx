@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const { isLoggedIn, username, role } = useUserStore();
   
   const [status, setStatus] = useState('');
+  const [isFetchingLyrics, setIsFetchingLyrics] = useState(false);
 
   // States for forms
   const [artistData, setArtistData] = useState({ name: '', slug: '', bio: '' });
@@ -97,6 +98,44 @@ export default function AdminDashboard() {
       setTrackCoverUrl(`https://img.youtube.com/vi/${trackData.youtubeVideoId}/maxresdefault.jpg`);
     }
   };
+
+  const handleFetchYoutubeLyrics = async () => {
+    if (!trackData.youtubeVideoId) {
+      setStatus('Please enter a YouTube Video ID first.');
+      return;
+    }
+    setIsFetchingLyrics(true);
+    setStatus('Fetching lyrics from YouTube...');
+    try {
+      const res: any = await fetchApi('/admin/tracks/youtube-lyrics', {
+        method: 'POST',
+        body: JSON.stringify({ videoId: trackData.youtubeVideoId })
+      });
+      if (res.data) {
+        setTrackData({ ...trackData, lyrics: res.data });
+        setStatus('Lyrics fetched successfully!');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setStatus(`Failed to fetch lyrics: ${err.message}`);
+    } finally {
+      setIsFetchingLyrics(false);
+    }
+  };
+
+  const handleLrcFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setTrackData({ ...trackData, lyrics: text });
+      setStatus('LRC file loaded successfully!');
+    };
+    reader.readAsText(file);
+  };
+
 
   const handleCreateTrack = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,7 +261,23 @@ export default function AdminDashboard() {
               </div>
 
               <input type="number" placeholder="Duration (ms)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.durationMs || ''} onChange={e => setTrackData({...trackData, durationMs: parseInt(e.target.value) || 0})} />
-              <textarea placeholder="Lyrics" rows={4} className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.lyrics} onChange={e => setTrackData({...trackData, lyrics: e.target.value})} />
+              
+              <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold">Lyrics (.lrc format)</span>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={handleFetchYoutubeLyrics} disabled={isFetchingLyrics} className="bg-gray-200 border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none disabled:opacity-50">
+                      {isFetchingLyrics ? 'Fetching...' : 'Fetch from YouTube'}
+                    </button>
+                    <label className="bg-[var(--color-pw-vibrant-blue)] text-white border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] cursor-pointer active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+                      Upload .lrc File
+                      <input type="file" accept=".lrc,.txt" className="hidden" onChange={handleLrcFileUpload} />
+                    </label>
+                  </div>
+                </div>
+                <textarea placeholder="[00:15.30] Example lyrics line..." rows={6} className="border-2 border-black p-2 outline-none focus:bg-gray-100 w-full font-mono text-xs" value={trackData.lyrics} onChange={e => setTrackData({...trackData, lyrics: e.target.value})} />
+              </div>
+              
               <button type="submit" className="bg-[var(--color-pw-hot-pink)] text-white border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Track</button>
             </form>
           </section>
