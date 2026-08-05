@@ -13,7 +13,7 @@ interface TrackCardProps {
 }
 
 export function TrackCard({ id, title, artist, pixels, coverArtUrl }: TrackCardProps) {
-  const { play } = usePlayerStore();
+  const { fetchAndPlayTrack } = usePlayerStore();
 
   return (
     <div className="group relative w-full bg-[var(--color-pw-surface-100)] border-2 border-black rounded-xl p-4 shadow-brutal hover:shadow-brutal-hover hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300 flex flex-col">
@@ -25,7 +25,7 @@ export function TrackCard({ id, title, artist, pixels, coverArtUrl }: TrackCardP
         {/* Hover overlay with play button */}
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button 
-            onClick={() => play(id)}
+            onClick={() => fetchAndPlayTrack(id)}
             className="w-14 h-14 bg-[var(--color-pw-hot-pink)] border-2 border-black rounded-full flex items-center justify-center shadow-brutal hover:scale-110 transition-transform"
           >
             <Play className="w-6 h-6 text-white fill-white ml-1" />

@@ -10,7 +10,7 @@ import { useUserStore } from "@/stores/userStore";
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isLoggedIn, role, isVerified, user, logout } = useUserStore();
+  const { isLoggedIn, role, username, logout } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -28,7 +28,7 @@ export function Sidebar() {
     { name: "Profile", href: "/profile", icon: User },
   ];
 
-  if (mounted && isLoggedIn && (role === 'ADMIN' || role === 'MODERATOR' || isVerified)) {
+  if (mounted && isLoggedIn && (role === 'ADMIN' || role === 'MODERATOR')) {
     navItems.push({ name: "Admin Dashboard", href: "/admin", icon: Settings });
   }
 
@@ -82,7 +82,7 @@ export function Sidebar() {
           ) : isLoggedIn ? (
              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-black bg-gray-900 text-white font-bold uppercase tracking-wider hover:-translate-y-0.5 hover:-translate-x-0.5 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-300">
                <LogOut className="w-5 h-5" />
-               Logout {user?.displayName ? `(${user.displayName})` : ''}
+               Logout {username ? `(${username})` : ''}
              </button>
           ) : (
              <Link href="/login" className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-black bg-[var(--color-pw-hot-pink)] text-white font-bold uppercase tracking-wider hover:-translate-y-0.5 hover:-translate-x-0.5 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-300">
