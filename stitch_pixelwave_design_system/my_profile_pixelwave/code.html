@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pixelwave - Profile</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#002022",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "outline": "#8a7176",
+                        "on-tertiary-container": "#2d3b00",
+                        "inverse-primary": "#ffb1c5",
+                        "surface-container-high": "#ffe0f1",
+                        "surface-container": "#ffe8f4",
+                        "tertiary-fixed": "#c3f400",
+                        "on-primary-fixed": "#3f001b",
+                        "tertiary-fixed-dim": "#abd600",
+                        "surface-container-low": "#fff0f6",
+                        "surface-bright": "#fff8f9",
+                        "on-background": "#3a0130",
+                        "surface": "#fff8f9",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#006970",
+                        "background": "#fff8f9",
+                        "secondary-fixed": "#7df4ff",
+                        "tertiary-container": "#88ab00",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#ff6b9d",
+                        "on-surface-variant": "#574146",
+                        "primary": "#ac2a5d",
+                        "secondary-container": "#00eefc",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "outline-variant": "#ddbfc5",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#161e00",
+                        "primary-fixed-dim": "#ffb1c5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#00686f",
+                        "on-tertiary-fixed-variant": "#3c4d00",
+                        "on-surface": "#3a0130",
+                        "on-primary-fixed-variant": "#8c0a46",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#6e0035",
+                        "surface-variant": "#ffd7ef",
+                        "surface-container-highest": "#ffd7ef",
+                        "inverse-on-surface": "#ffecf5",
+                        "primary-fixed": "#ffd9e1",
+                        "inverse-surface": "#541847",
+                        "surface-tint": "#ac2a5d",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#ffcbeb",
+                        "tertiary": "#506600"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "margin-desktop": "48px",
+                        "base": "4px",
+                        "gutter": "20px",
+                        "xl": "64px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "margin-mobile": "16px",
+                        "xs": "8px",
+                        "sm": "16px"
+                    },
+                    fontFamily: {
+                        "h2": ["Space Grotesk"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "data-display": ["Courier Prime"],
+                        "h1-mobile": ["Space Grotesk"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "h1": ["Space Grotesk"]
+                    },
+                    fontSize: {
+                        "h2": ["32px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "data-display": ["20px", { lineHeight: "1", fontWeight: "400" }],
+                        "h1-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "700" }],
+                        "h1": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Neo-brutalism borders & shadows */
+        .neo-border {
+            border: 2px solid #3a0130;
+        }
+        .neo-shadow {
+            box-shadow: 4px 4px 0px 0px #3a0130;
+        }
+        .neo-shadow-sm {
+            box-shadow: 2px 2px 0px 0px #3a0130;
+        }
+        
+        /* Animations */
+        @keyframes rainbow-border {
+            0% { border-color: #ff6b9d; }
+            33% { border-color: #00eefc; }
+            66% { border-color: #c3f400; }
+            100% { border-color: #ff6b9d; }
+        }
+        .legendary-badge {
+            animation: rainbow-border 3s linear infinite;
+        }
+        
+        /* Heatmap colors */
+        .heat-0 { background-color: #ffd7ef; }
+        .heat-1 { background-color: #ffb1c5; }
+        .heat-2 { background-color: #ff6b9d; }
+        .heat-3 { background-color: #ac2a5d; }
+        .heat-4 { background-color: #8c0a46; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container pb-24 lg:pb-0 lg:pl-64">
+<!-- Mobile Top AppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-primary/80 backdrop-blur-xl border-b-2 border-on-primary-fixed shadow-[4px_4px_0px_0px_#3f001b] lg:hidden">
+<div class="font-h1-mobile text-h1-mobile font-bold text-on-primary tracking-tighter">Pixelwave</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-on-primary/70 font-medium hover:bg-primary-container hover:text-on-primary-container transition-all cursor-pointer p-1 rounded">notifications</span>
+<span class="material-symbols-outlined text-on-primary/70 font-medium hover:bg-primary-container hover:text-on-primary-container transition-all cursor-pointer p-1 rounded">military_tech</span>
+</div>
+</header>
+<!-- Desktop Side Nav -->
+<nav class="hidden lg:flex flex-col fixed left-0 top-0 h-full p-md z-40 bg-surface dark:bg-surface-container-lowest border-r-2 border-on-background shadow-[4px_0px_0px_0px_#3a0130] w-64">
+<div class="mb-8">
+<h1 class="font-h2 text-h2 font-bold text-primary italic">Pixelwave</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-2">Vibe Check: Active</p>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 p-3 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">explore</span>
+                Discover
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">brush</span>
+                Canvas
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+                Charts
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">group</span>
+                Social
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-caps text-label-caps bg-secondary-container text-on-secondary-container border-2 border-on-background shadow-[2px_2px_0px_0px_#3a0130] rounded-xl scale-95 transition-transform duration-100" href="#">
+<span class="material-symbols-outlined">person_2</span>
+                Profile
+            </a>
+</div>
+<button class="w-full py-3 mb-6 bg-primary text-on-primary font-label-caps text-label-caps neo-border neo-shadow hover:shadow-none hover:translate-y-[4px] hover:translate-x-[4px] transition-all rounded-DEFAULT">
+            Drop Pixel
+        </button>
+<div class="flex flex-col gap-2 mt-auto pt-4 border-t-2 border-on-background/20">
+<a class="flex items-center gap-3 p-2 font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 p-2 font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="min-h-screen pt-16 lg:pt-0">
+<!-- Profile Header -->
+<section class="relative h-[200px] w-full bg-gradient-to-r from-[#ffd9e1] via-[#00eefc] to-[#ffb1c5] neo-border border-x-0 lg:border-t-0 flex items-end px-margin-mobile lg:px-margin-desktop pb-8">
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#3a0130 1px, transparent 1px); background-size: 16px 16px;"></div>
+<div class="relative z-10 flex items-end gap-6 translate-y-12">
+<div class="w-24 h-24 bg-surface rounded-full neo-border neo-shadow flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A futuristic avatar portrait of a digitally native user in a vibrant, neon-lit Y2K aesthetic setting, wearing high-tech stylized headphones. The lighting is bright and optimistic, emphasizing neo-brutalist structural lines and pastel cyber-pop colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfkBF2TlO6IegW0EyO1LKtOJt2Wgx8gXWUl3888C8Fbrg8oTllWB-N2obAiBw4BUr792bLQBO3hkY2IgQy5pmvunSWJYRdQCoCtBdjTTaB86epQOMerl464ynCWqggzsYEtO3JAV6coTUsDqhGW-aHFjlSNfXZQPQK4jgIPspTE5OMUIf3QyCFj_Jtb_w-DNal9dXyk5f8dnMpkCM7oHn7FZeS6LverNgNrjAEI6xzskigApAyEWs"/>
+</div>
+<div class="mb-2">
+<h2 class="font-h1-mobile text-h1-mobile lg:font-h1 lg:text-h1 text-on-background bg-surface px-2 neo-border neo-shadow-sm inline-block">@NeonVibes</h2>
+<div class="mt-2 inline-flex items-center gap-2 bg-surface px-3 py-1 rounded-full neo-border shadow-[0_0_10px_rgba(0,238,252,0.8)] border-[#00eefc]">
+<span class="material-symbols-outlined text-[16px] text-secondary-container fill-icon">bolt</span>
+<span class="font-label-caps text-label-caps text-on-background">Wave Level 42</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Profile Content -->
+<div class="px-margin-mobile lg:px-margin-desktop mt-20 pb-24">
+<!-- Tabs Navigation -->
+<div class="flex gap-4 border-b-2 border-on-background/20 mb-8 overflow-x-auto hide-scrollbar">
+<button class="px-4 py-2 font-label-caps text-label-caps border-b-4 border-primary text-primary -mb-[2px]">Overview</button>
+<button class="px-4 py-2 font-label-caps text-label-caps border-b-4 border-transparent text-on-surface-variant hover:text-primary transition-colors -mb-[2px]">Canvas</button>
+<button class="px-4 py-2 font-label-caps text-label-caps border-b-4 border-transparent text-on-surface-variant hover:text-primary transition-colors -mb-[2px]">Badges</button>
+<button class="px-4 py-2 font-label-caps text-label-caps border-b-4 border-transparent text-on-surface-variant hover:text-primary transition-colors -mb-[2px]">History</button>
+</div>
+<!-- Tab Content: Overview -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-gutter mb-12">
+<!-- Stat Card 1 -->
+<div class="bg-surface p-4 neo-border neo-shadow hover:translate-y-[-2px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary text-3xl">play_circle</span>
+<span class="font-data-display text-data-display text-on-background">1.2M</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Total Streams</p>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-primary-container p-4 neo-border neo-shadow hover:translate-y-[-2px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-on-primary-container text-3xl">grid_4x4</span>
+<span class="font-data-display text-data-display text-on-primary-container">8,492</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-primary-container">Pixels Dropped</p>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-secondary-container p-4 neo-border neo-shadow hover:translate-y-[-2px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl">military_tech</span>
+<span class="font-data-display text-data-display text-on-secondary-container">14</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-secondary-container">Badges Earned</p>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface-variant p-4 neo-border neo-shadow hover:translate-y-[-2px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-on-background text-3xl">local_fire_department</span>
+<span class="font-data-display text-data-display text-on-background">12</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-background">Day Streak</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Nav -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 lg:hidden bg-white/60 backdrop-blur-[20px] border-t-2 border-on-background rounded-t-full shadow-[0px_-4px_0px_0px_rgba(58,1,48,0.1)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="mt-1">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">palette</span>
+<span class="mt-1">Canvas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">swords</span>
+<span class="mt-1">War</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full p-2 shadow-[2px_2px_0px_0px_#3f001b] scale-110 transition-all duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">person_2</span>
+<span class="mt-1 hidden">Profile</span>
+</a>
+</nav>
+</body></html>

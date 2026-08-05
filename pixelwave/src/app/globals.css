@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+:root {
+  /* Colors */
+  --pw-chrome-start: #E8D5F2;
+  --pw-chrome-end: #B8E6F0;
+  --pw-hot-pink: #FF6B9D;
+  --pw-cyan-glow: #00F0FF;
+  --pw-neon-lime: #CCFF00;
+  --pw-deep-purple: #6B2D5C;
+
+  /* Surfaces */
+  --pw-surface-100: #FAFAFF;
+  --pw-surface-200: #F0F0FA;
+  --pw-surface-300: #E6E6F5;
+  --pw-glass: rgba(255, 255, 255, 0.25);
+  --pw-glass-border: rgba(255, 255, 255, 0.4);
+  --pw-glass-dark: rgba(0, 0, 0, 0.1);
+
+  /* Semantic */
+  --pw-pixel-earned: #CCFF00;
+  --pw-war-active: #FF0040;
+  --pw-territory-shield: #00F0FF;
+  --pw-success: #00E676;
+  --pw-warning: #FFD600;
+  --pw-error: #FF1744;
+
+  /* Gradients */
+  --pw-gradient-chrome: linear-gradient(135deg, var(--pw-chrome-start) 0%, var(--pw-chrome-end) 50%, var(--pw-chrome-start) 100%);
+  --pw-gradient-hot: linear-gradient(90deg, var(--pw-hot-pink) 0%, #FF8E53 100%);
+  --pw-gradient-cyber: linear-gradient(180deg, var(--pw-cyan-glow) 0%, var(--pw-deep-purple) 100%);
+  --pw-gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+  --pw-gradient-war: linear-gradient(90deg, var(--pw-war-active) 0%, var(--pw-hot-pink) 50%, var(--pw-war-active) 100%);
+}
+
+@theme {
+  /* Font Families */
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-plus-jakarta-sans), system-ui, sans-serif;
+  --font-data: var(--font-vt323), "Courier New", monospace;
+  --font-retro: var(--font-press-start-2p), monospace;
+  
+  --font-sans: var(--font-body);
+
+  /* Border Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* Shadows (Neo-Brutalism & Glows) */
+  --shadow-brutal: 4px 4px 0px 0px #000000;
+  --shadow-brutal-hover: 6px 6px 0px 0px #000000;
+  --shadow-brutal-active: 2px 2px 0px 0px #000000;
+  --shadow-brutal-lg: 8px 8px 0px 0px #000000;
+  --shadow-glass: 0 8px 32px 0px rgba(0, 0, 0, 0.1);
+  --shadow-glow-cyan: 0 0 20px rgba(0, 240, 255, 0.4);
+  --shadow-glow-pink: 0 0 20px rgba(255, 107, 157, 0.4);
+  --shadow-glow-lime: 0 0 20px rgba(204, 255, 0, 0.4);
+
+  /* PW Colors */
+  --color-pw-chrome-start: var(--pw-chrome-start);
+  --color-pw-chrome-end: var(--pw-chrome-end);
+  --color-pw-hot-pink: var(--pw-hot-pink);
+  --color-pw-cyan-glow: var(--pw-cyan-glow);
+  --color-pw-neon-lime: var(--pw-neon-lime);
+  --color-pw-deep-purple: var(--pw-deep-purple);
+  --color-pw-surface-100: var(--pw-surface-100);
+  --color-pw-surface-200: var(--pw-surface-200);
+  --color-pw-surface-300: var(--pw-surface-300);
+
+  /* Colors from Stitch Design System */
+  --color-on-secondary-fixed: #002022;
+  --color-secondary-fixed-dim: #00dbe9;
+  --color-outline: #8a7176;
+  --color-on-tertiary-container: #2d3b00;
+  --color-inverse-primary: #ffb1c5;
+  --color-surface-container-high: #ffe0f1;
+  --color-surface-container: #ffe8f4;
+  --color-tertiary-fixed: #c3f400;
+  --color-on-primary-fixed: #3f001b;
+  --color-tertiary-fixed-dim: #abd600;
+  --color-surface-container-low: #fff0f6;
+  --color-surface-bright: #fff8f9;
+  --color-on-background: #3a0130;
+  --color-surface: #fff8f9;
+  --color-on-primary: #ffffff;
+  --color-on-error-container: #93000a;
+  --color-secondary: #006970;
+  --color-background: #fff8f9;
+  --color-secondary-fixed: #7df4ff;
+  --color-tertiary-container: #88ab00;
+  --color-error-container: #ffdad6;
+  --color-primary-container: #ff6b9d;
+  --color-on-surface-variant: #574146;
+  --color-primary: #ac2a5d;
+  --color-secondary-container: #00eefc;
+  --color-on-secondary-fixed-variant: #004f54;
+  --color-outline-variant: #ddbfc5;
+  --color-on-error: #ffffff;
+  --color-on-tertiary-fixed: #161e00;
+  --color-primary-fixed-dim: #ffb1c5;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-secondary-container: #00686f;
+  --color-on-tertiary-fixed-variant: #3c4d00;
+  --color-on-surface: #3a0130;
+  --color-on-primary-fixed-variant: #8c0a46;
+  --color-on-secondary: #ffffff;
+  --color-on-primary-container: #6e0035;
+  --color-surface-variant: #ffd7ef;
+  --color-surface-container-highest: #ffd7ef;
+  --color-inverse-on-surface: #ffecf5;
+  --color-primary-fixed: #ffd9e1;
+  --color-inverse-surface: #541847;
+  --color-surface-tint: #ac2a5d;
+  --color-on-tertiary: #ffffff;
+  --color-error: #ba1a1a;
+  --color-surface-dim: #ffcbeb;
+  --color-tertiary: #506600;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-body);
+}
+
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0,0,0,0.05) 50%,
+    rgba(0,0,0,0.05)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Base Utility Classes for Gradients since Tailwind v4 handles some of it differently */
+.bg-gradient-chrome {
+  background: var(--pw-gradient-chrome);
+}
+.bg-gradient-hot {
+  background: var(--pw-gradient-hot);
+}
+.bg-gradient-cyber {
+  background: var(--pw-gradient-cyber);
+}
+.bg-gradient-glass {
+  background: var(--pw-gradient-glass);
+}
+.bg-gradient-war {
+  background: var(--pw-gradient-war);
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Canvas - Pixelwave</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&amp;family=Space+Grotesk:ital,wght@0,600;0,700;1,600;1,700&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002022",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "outline": "#8a7176",
+                        "on-tertiary-container": "#2d3b00",
+                        "inverse-primary": "#ffb1c5",
+                        "surface-container-high": "#ffe0f1",
+                        "surface-container": "#ffe8f4",
+                        "tertiary-fixed": "#c3f400",
+                        "on-primary-fixed": "#3f001b",
+                        "tertiary-fixed-dim": "#abd600",
+                        "surface-container-low": "#fff0f6",
+                        "surface-bright": "#fff8f9",
+                        "on-background": "#3a0130",
+                        "surface": "#fff8f9",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#006970",
+                        "background": "#fff8f9",
+                        "secondary-fixed": "#7df4ff",
+                        "tertiary-container": "#88ab00",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#ff6b9d",
+                        "on-surface-variant": "#574146",
+                        "primary": "#ac2a5d",
+                        "secondary-container": "#00eefc",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "outline-variant": "#ddbfc5",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#161e00",
+                        "primary-fixed-dim": "#ffb1c5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#00686f",
+                        "on-tertiary-fixed-variant": "#3c4d00",
+                        "on-surface": "#3a0130",
+                        "on-primary-fixed-variant": "#8c0a46",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#6e0035",
+                        "surface-variant": "#ffd7ef",
+                        "surface-container-highest": "#ffd7ef",
+                        "inverse-on-surface": "#ffecf5",
+                        "primary-fixed": "#ffd9e1",
+                        "inverse-surface": "#541847",
+                        "surface-tint": "#ac2a5d",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#ffcbeb",
+                        "tertiary": "#506600"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "base": "4px",
+                        "gutter": "20px",
+                        "xl": "64px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "margin-mobile": "16px",
+                        "xs": "8px",
+                        "sm": "16px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Space Grotesk"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "data-display": ["Courier Prime"],
+                        "h1-mobile": ["Space Grotesk"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "h1": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "h2": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-display": ["20px", { "lineHeight": "1", "fontWeight": "400" }],
+                        "h1-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.05) 50%,
+                rgba(0,0,0,0.05)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+        .grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        .pixel-grid {
+            background-image: 
+                linear-gradient(to right, rgba(58, 1, 48, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(58, 1, 48, 0.1) 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-hidden selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar for Mobile (Hidden on Desktop) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-primary/80 backdrop-blur-xl border-b-2 border-on-primary-fixed shadow-[4px_4px_0px_0px_rgba(63,0,27,1)] lg:hidden">
+<div class="font-h1-mobile text-h1-mobile font-bold text-on-primary tracking-tighter">Pixelwave</div>
+<div class="flex gap-xs text-on-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined" data-icon="military_tech">military_tech</span>
+</div>
+</header>
+<!-- SideNavBar for Web (Hidden on Mobile) -->
+<nav class="hidden lg:flex flex-col fixed left-0 top-0 h-full p-md z-40 bg-surface border-r-2 border-on-background shadow-[4px_0px_0px_0px_#3a0130] w-64">
+<div class="mb-xl">
+<h1 class="font-h2 text-h2 font-bold text-primary italic">Pixelwave</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-2">Vibe Check: Active</p>
+</div>
+<div class="flex flex-col gap-sm flex-1">
+<a class="flex items-center gap-sm p-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-caps text-label-caps">Discover</span>
+</a>
+<a class="flex items-center gap-sm p-3 bg-secondary-container text-on-secondary-container border-2 border-on-background shadow-[2px_2px_0px_0px_#3a0130] rounded-xl scale-95 transition-transform duration-100" href="#">
+<span class="material-symbols-outlined" data-icon="brush" data-weight="fill" style="font-variation-settings: 'FILL' 1;">brush</span>
+<span class="font-label-caps text-label-caps">Canvas</span>
+</a>
+<a class="flex items-center gap-sm p-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-caps text-label-caps">Charts</span>
+</a>
+<a class="flex items-center gap-sm p-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-caps text-label-caps">Social</span>
+</a>
+<a class="flex items-center gap-sm p-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-transform hover:-translate-y-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="person_2">person_2</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</div>
+<button class="bg-primary text-on-primary py-3 px-4 font-label-caps text-label-caps border-2 border-on-primary-fixed shadow-[4px_4px_0px_0px_#3f001b] rounded-DEFAULT mt-auto mb-md hover:shadow-none transition-all active:translate-y-1 active:translate-x-1">Drop Pixel</button>
+<div class="flex flex-col gap-xs mt-auto pt-md border-t-2 border-on-surface-variant/20">
+<a class="flex items-center gap-sm p-2 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<a class="flex items-center gap-sm p-2 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="lg:ml-64 h-screen pb-20 pt-16 lg:pt-0 relative bg-surface-container-low flex flex-col md:flex-row">
+<!-- Effects Overlay -->
+<div class="absolute inset-0 scanlines z-50 pointer-events-none"></div>
+<div class="absolute inset-0 grain z-50 pointer-events-none"></div>
+<!-- Left Tools Panel -->
+<aside class="w-full md:w-80 border-r-2 border-on-background bg-surface-bright flex flex-col p-md gap-md overflow-y-auto shrink-0 shadow-[4px_0px_0px_0px_#3a0130] z-30">
+<!-- Fandom Selector -->
+<div class="bg-surface/60 backdrop-blur-md border-2 border-on-background shadow-[4px_4px_0px_0px_#3a0130] p-4 rounded-lg">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Active Fandom</h3>
+<div class="flex items-center justify-between bg-white border-2 border-on-background p-2 rounded-DEFAULT">
+<span class="font-body-md text-body-md font-bold text-primary">r/Synthwave</span>
+<span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
+</div>
+</div>
+<!-- Tools -->
+<div class="bg-surface/60 backdrop-blur-md border-2 border-on-background shadow-[4px_4px_0px_0px_#3a0130] p-4 rounded-lg">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Deploy Tool</h3>
+<div class="grid grid-cols-3 gap-2">
+<button class="bg-primary text-on-primary p-2 border-2 border-on-background shadow-[2px_2px_0px_0px_#3a0130] rounded-DEFAULT flex flex-col items-center gap-1 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_box</span>
+<span class="font-label-caps text-[10px]">Place</span>
+</button>
+<button class="bg-surface p-2 border-2 border-on-background text-on-surface-variant hover:bg-surface-container-high rounded-DEFAULT flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">shield</span>
+<span class="font-label-caps text-[10px]">Shield</span>
+</button>
+<button class="bg-surface p-2 border-2 border-on-background text-on-surface-variant hover:bg-surface-container-high rounded-DEFAULT flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">bomb</span>
+<span class="font-label-caps text-[10px]">Bomb</span>
+</button>
+</div>
+</div>
+<!-- Palette -->
+<div class="bg-surface/60 backdrop-blur-md border-2 border-on-background shadow-[4px_4px_0px_0px_#3a0130] p-4 rounded-lg">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Palette</h3>
+<div class="grid grid-cols-4 gap-2">
+<!-- Color Swatches -->
+<div class="w-full aspect-square bg-[#ff0000] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#ff7f00] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#ffff00] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#00ff00] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#0000ff] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#4b0082] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#9400d3] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#ffffff] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#000000] border-2 border-primary shadow-[2px_2px_0px_0px_#ac2a5d] cursor-pointer rounded-sm scale-110"></div>
+<div class="w-full aspect-square bg-[#808080] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#ff69b4] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#00ffff] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#8b4513] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#008000] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#000080] border-2 border-on-background cursor-pointer rounded-sm"></div>
+<div class="w-full aspect-square bg-[#ffd700] border-2 border-on-background cursor-pointer rounded-sm"></div>
+</div>
+</div>
+<!-- Minimap -->
+<div class="mt-auto">
+<div class="w-[150px] h-[150px] bg-white border-2 border-on-background shadow-[4px_4px_0px_0px_#3a0130] mx-auto relative overflow-hidden rounded-sm">
+<img class="w-full h-full object-cover pixelated" data-alt="A pixel art minimap showing a colorful, chaotic canvas of placed pixels. The aesthetic is bright, neon-infused Y2K futurism with hot pinks, cyans, and deep purples. It looks like a complex, abstract digital landscape." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6PW_ax4Gr3rJserNxRceAD0H4VnL42Hl2Y6pguD6u_auYzxwHkyGn6RFW3U06XtBUsKhJ7pWpgbdcqP3pgNF9qICTZen-36Mi-QjNV3CMT-F7lk2ZGjjsknekXRxbRdrjbSOImXQvsn-blbSnLOCF6qQmLT2OGEUUYVKH2CNrs75nSi8yH1t3XPqO30AZHqdV8war5-jGZ7XfpxhhM-ezEeYf2djaLbgtfgG1fDt_dNPuee5H3TY"/>
+<!-- Viewport indicator -->
+<div class="absolute border border-primary w-8 h-8 top-10 left-10 bg-primary/20"></div>
+</div>
+</div>
+</aside>
+<!-- Main Canvas Area -->
+<section class="flex-1 relative overflow-hidden bg-[#e0e0e0] flex items-center justify-center cursor-crosshair">
+<!-- The Pixel Grid Surface -->
+<div class="w-[800px] h-[800px] bg-white border-4 border-on-background shadow-[8px_8px_0px_0px_#3a0130] relative pixel-grid scale-100 transition-transform origin-center">
+<!-- Mock placed pixels / artwork -->
+<div class="absolute top-[20%] left-[30%] w-20 h-20 bg-primary opacity-80 mix-blend-multiply"></div>
+<div class="absolute top-[50%] left-[60%] w-10 h-10 bg-secondary opacity-80"></div>
+<div class="absolute top-[10%] left-[80%] w-16 h-16 bg-tertiary opacity-80"></div>
+<!-- Fandom Zone (Dashed Border) -->
+<div class="absolute top-[40%] left-[20%] w-48 h-32 border-2 border-dashed border-primary bg-primary-container/20 flex items-center justify-center pointer-events-none">
+<span class="font-data-display text-primary/50 text-sm tracking-widest bg-white/80 px-2 border border-primary">ZONE: SYNTH</span>
+</div>
+<!-- Glowing "Freshly Placed" Pixel -->
+<div class="absolute top-[45%] left-[25%] w-2.5 h-2.5 bg-secondary-fixed shadow-[0_0_10px_#7df4ff,0_0_20px_#7df4ff] animate-pulse"></div>
+</div>
+<!-- Floating Coordinates -->
+<div class="absolute top-4 right-4 bg-surface/80 backdrop-blur-md border-2 border-on-background px-4 py-2 shadow-[4px_4px_0px_0px_#3a0130] rounded-DEFAULT flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">my_location</span>
+<span class="font-data-display text-data-display font-bold text-on-background tracking-widest">[420, 069]</span>
+</div>
+<!-- Floating Zoom Controls -->
+<div class="absolute bottom-4 right-4 flex flex-col gap-2">
+<button class="bg-surface/80 backdrop-blur-md border-2 border-on-background p-2 shadow-[4px_4px_0px_0px_#3a0130] hover:bg-surface-container-high rounded-full w-10 h-10 flex items-center justify-center">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="bg-surface/80 backdrop-blur-md border-2 border-on-background p-2 shadow-[4px_4px_0px_0px_#3a0130] hover:bg-surface-container-high rounded-full w-10 h-10 flex items-center justify-center">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar for Mobile (Hidden on Web) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 lg:hidden bg-white/60 backdrop-blur-[20px] border-t-2 border-on-background shadow-[0px_-4px_0px_0px_rgba(58,1,48,0.1)] rounded-t-full">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-caps text-label-caps mt-1">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full p-2 shadow-[2px_2px_0px_0px_#3f001b] scale-110 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="palette" style="font-variation-settings: 'FILL' 1;">palette</span>
+<span class="font-label-caps text-label-caps mt-1">Canvas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary" href="#">
+<span class="material-symbols-outlined" data-icon="swords">swords</span>
+<span class="font-label-caps text-label-caps mt-1">War</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary" href="#">
+<span class="material-symbols-outlined" data-icon="music_note">music_note</span>
+<span class="font-label-caps text-label-caps mt-1">Player</span>
+</a>
+</nav>
+</body></html>

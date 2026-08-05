@@ -1,0 +1,546 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String  @id @default(uuid())
+  username     String  @unique
+  displayName  String?
+  email        String  @unique
+  passwordHash String
+  avatarUrl    String?
+  bio          String?
+
+  waveLevel         Int    @default(1)
+  xp                BigInt @default(0)
+  pixelBalance      Int    @default(0)
+  totalPixelsEarned BigInt @default(0)
+  totalPixelsSpent  BigInt @default(0)
+
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  streakLastDate DateTime? @db.Date
+
+  activeFandomId String?
+  activeFandom   Fandom? @relation("ActiveFandom", fields: [activeFandomId], references: [id])
+
+  subscriptionTier      String    @default("free")
+  subscriptionExpiresAt DateTime?
+
+  isVerified   Boolean   @default(false)
+  isArtist     Boolean   @default(false)
+  role         Role      @default(USER)
+  googleId     String?   @unique
+  isBanned     Boolean   @default(false)
+  banReason    String?
+  banExpiresAt DateTime?
+
+  lastLoginAt  DateTime?
+  lastActiveAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  deletedAt    DateTime?
+
+  uploadedTracks    Track[]
+  fandomsLed        Fandom[]           @relation("FandomLeader")
+  fandomMemberships UserFandom[]
+  pixelsPlaced      Pixel[]
+  pixelsOverridden  PixelHistory[]     @relation("OverriddenBy")
+  pixelTransactions PixelTransaction[]
+  xpTransactions    XpTransaction[]
+  listeningSessions ListeningSession[]
+  streaks           Streak[]
+  likes             UserLike[]
+  followers         Follow[]           @relation("Following")
+  following         Follow[]           @relation("Follower")
+  activities        Activity[]
+  notifications     Notification[]
+  badges            UserBadge[]
+  warsCreated       War[]
+  payments          Payment[]
+  subscriptions     Subscription[]
+  playbackStates    PlaybackState[]
+}
+
+model Artist {
+  id            String    @id @default(uuid())
+  name          String
+  slug          String    @unique
+  bio           String?
+  avatarUrl     String?
+  bannerUrl     String?
+  genre         String?
+  verified      Boolean   @default(false)
+  verifiedAt    DateTime?
+  spotifyUrl    String?
+  youtubeUrl    String?
+  instagramUrl  String?
+  twitterUrl    String?
+  totalStreams  BigInt    @default(0)
+  totalPlays    BigInt    @default(0)
+  followerCount Int       @default(0)
+
+  fandom Fandom?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  albums Album[]
+  tracks Track[]
+}
+
+model Album {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  artistId    String
+  artist      Artist    @relation(fields: [artistId], references: [id])
+  artworkUrl  String?
+  releaseDate DateTime? @db.Date
+  genre       String?
+  description String?
+
+  totalPlays BigInt @default(0)
+  trackCount Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  tracks Track[]
+}
+
+model Track {
+  id       String  @id @default(uuid())
+  title    String
+  slug     String  @unique
+  artistId String
+  artist   Artist  @relation(fields: [artistId], references: [id])
+  albumId  String?
+  album    Album?  @relation(fields: [albumId], references: [id])
+
+  audioUrl       String?
+  coverArtUrl    String?
+  youtubeVideoId String?
+  source         String
+  durationMs     Int
+
+  genre       String?
+  lyrics      String?
+  trackNumber Int?
+  isExplicit  Boolean @default(false)
+
+  fandomId String?
+  fandom   Fandom? @relation(fields: [fandomId], references: [id])
+
+  playCount BigInt @default(0)
+  likeCount Int    @default(0)
+
+  uploadedBy   String?
+  uploader     User?   @relation(fields: [uploadedBy], references: [id])
+  uploadStatus String  @default("pending")
+
+  contentIdClaimed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  likes             UserLike[]
+  listeningSessions ListeningSession[]
+  playbackStates    PlaybackState[]
+}
+
+model Fandom {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  artistId    String? @unique
+  artist      Artist? @relation(fields: [artistId], references: [id])
+  description String?
+  iconUrl     String?
+  bannerUrl   String?
+  color       String
+
+  territoryPixelCount Int @default(0)
+  territoryMaxSize    Int @default(40000)
+
+  memberCount      Int    @default(0)
+  totalPixels      BigInt @default(0)
+  totalStreams     BigInt @default(0)
+  warsWon          Int    @default(0)
+  warsParticipated Int    @default(0)
+
+  leaderUserId String?
+  leader       User?   @relation("FandomLeader", fields: [leaderUserId], references: [id])
+
+  isPublic        Boolean @default(true)
+  joinRequirement String  @default("open")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  activeMembers     User[]           @relation("ActiveFandom")
+  memberships       UserFandom[]
+  pixels            Pixel[]
+  tracks            Track[]
+  territories       Territory[]
+  warsWonList       War[]            @relation("WarWinner")
+  warParticipations WarParticipant[]
+  warEvents         WarEvent[]
+  streaks           Streak[]
+}
+
+model UserFandom {
+  id                 String    @id @default(uuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  fandomId           String
+  fandom             Fandom    @relation(fields: [fandomId], references: [id])
+  role               String    @default("member")
+  joinedAt           DateTime  @default(now())
+  pixelsContributed  BigInt    @default(0)
+  pixelsOverridden   BigInt    @default(0)
+  streamsContributed BigInt    @default(0)
+  warsParticipated   Int       @default(0)
+  warsWon            Int       @default(0)
+  lastActiveAt       DateTime?
+
+  @@unique([userId, fandomId])
+}
+
+model CanvasConfig {
+  id               Int       @id @default(1)
+  width            Int       @default(1000)
+  height           Int       @default(1000)
+  pixelGap         Int       @default(1)
+  defaultPixelSize Int       @default(12)
+  minZoom          Float     @default(0.25)
+  maxZoom          Float     @default(4.00)
+  gridThreshold    Int       @default(8)
+  version          BigInt    @default(0)
+  lastResetAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
+}
+
+model Pixel {
+  id       String @id @default(uuid())
+  x        Int
+  y        Int
+  color    String
+  fandomId String
+  fandom   Fandom @relation(fields: [fandomId], references: [id])
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+
+  shielded        Boolean   @default(false)
+  shieldExpiresAt DateTime?
+  isSuper         Boolean   @default(false)
+  version         BigInt    @default(1)
+
+  placedAt       DateTime  @default(now())
+  overriddenAt   DateTime?
+  overriddenById String?
+
+  @@unique([x, y])
+}
+
+model PixelHistory {
+  id             String   @id @default(uuid())
+  pixelX         Int
+  pixelY         Int
+  color          String
+  fandomId       String
+  userId         String
+  placedAt       DateTime
+  overriddenAt   DateTime @default(now())
+  overriddenById String?
+  overriddenBy   User?    @relation("OverriddenBy", fields: [overriddenById], references: [id])
+  overrideReason String?
+}
+
+model Territory {
+  id       String @id @default(uuid())
+  fandomId String @unique
+  fandom   Fandom @relation(fields: [fandomId], references: [id])
+  name     String
+
+  boundsX      Int
+  boundsY      Int
+  boundsWidth  Int
+  boundsHeight Int
+
+  isWildZone        Boolean @default(false)
+  pixelCount        Int     @default(0)
+  maxSize           Int
+  expansionProgress Int     @default(0)
+
+  isLocked    Boolean   @default(false)
+  lockedUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model War {
+  id                   String  @id @default(uuid())
+  name                 String
+  description          String?
+  objectiveType        String
+  objectiveTarget      Int
+  objectiveDescription String?
+
+  status   String   @default("upcoming")
+  startsAt DateTime
+  endsAt   DateTime
+
+  allowOverrides  Boolean @default(true)
+  allowBombs      Boolean @default(true)
+  allowShields    Boolean @default(true)
+  pixelMultiplier Float   @default(1.50)
+  territoryLock   Boolean @default(false)
+
+  winnerFandomId String?
+  winnerFandom   Fandom? @relation("WarWinner", fields: [winnerFandomId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  participants WarParticipant[]
+  events       WarEvent[]
+}
+
+model WarParticipant {
+  id       String @id @default(uuid())
+  warId    String
+  war      War    @relation(fields: [warId], references: [id])
+  fandomId String
+  fandom   Fandom @relation(fields: [fandomId], references: [id])
+
+  territoryPercent   Float    @default(0)
+  pixelsPlaced       BigInt   @default(0)
+  pixelsSurvived     BigInt   @default(0)
+  pixelsOverridden   BigInt   @default(0)
+  memberContributors Int      @default(0)
+  score              BigInt   @default(0)
+  finalRank          Int?
+  joinedAt           DateTime @default(now())
+
+  @@unique([warId, fandomId])
+}
+
+model WarEvent {
+  id        String   @id @default(uuid())
+  warId     String
+  war       War      @relation(fields: [warId], references: [id])
+  fandomId  String?
+  fandom    Fandom?  @relation(fields: [fandomId], references: [id])
+  eventType String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Badge {
+  id                    String   @id
+  name                  String
+  description           String
+  icon                  String
+  rarity                String
+  category              String
+  conditionType         String
+  conditionMetric       String
+  conditionTarget       BigInt
+  conditionTimeWindowMs BigInt?
+  animationType         String?
+  createdAt             DateTime @default(now())
+
+  users UserBadge[]
+}
+
+model UserBadge {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  badgeId         String
+  badge           Badge     @relation(fields: [badgeId], references: [id])
+  progressCurrent BigInt    @default(0)
+  progressTarget  BigInt
+  percentComplete Int       @default(0)
+  unlockedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, badgeId])
+}
+
+model XpTransaction {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Int
+  action        String
+  description   String?
+  referenceType String?
+  referenceId   String?
+  balanceAfter  BigInt
+  createdAt     DateTime @default(now())
+}
+
+model PixelTransaction {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Int
+  type          String
+  action        String
+  description   String?
+  referenceType String?
+  referenceId   String?
+  balanceAfter  Int
+  createdAt     DateTime @default(now())
+}
+
+model ListeningSession {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  trackId         String
+  track           Track     @relation(fields: [trackId], references: [id])
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+  percentListened Int       @default(0)
+  totalTimeMs     Int       @default(0)
+  status          String    @default("active")
+  pixelsEarned    Int       @default(0)
+  xpEarned        Int       @default(0)
+  isFlagged       Boolean   @default(false)
+  flagReason      String?
+  createdAt       DateTime  @default(now())
+}
+
+model Streak {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  streakType       String
+  fandomId         String?
+  fandom           Fandom?  @relation(fields: [fandomId], references: [id])
+  currentStreak    Int      @default(0)
+  longestStreak    Int      @default(0)
+  lastDate         DateTime @db.Date
+  freezesUsed      Int      @default(0)
+  freezesAvailable Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+
+  @@unique([userId, streakType, fandomId])
+}
+
+model UserLike {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  trackId   String
+  track     Track    @relation(fields: [trackId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, trackId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("Follower", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Activity {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  activityType  String
+  message       String
+  referenceType String?
+  referenceId   String?
+  isPublic      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model Notification {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  type          String
+  title         String
+  message       String
+  referenceType String?
+  referenceId   String?
+  read          Boolean   @default(false)
+  readAt        DateTime?
+  inApp         Boolean   @default(true)
+  priority      Int       @default(1)
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime?
+}
+
+model Subscription {
+  id                     String    @id @default(uuid())
+  userId                 String
+  user                   User      @relation(fields: [userId], references: [id])
+  tier                   String
+  status                 String    @default("active")
+  priceCents             Int
+  currency               String    @default("USD")
+  interval               String
+  startedAt              DateTime
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  cancelledAt            DateTime?
+  expiresAt              DateTime?
+  provider               String
+  providerSubscriptionId String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @default(now()) @updatedAt
+}
+
+model Payment {
+  id                    String   @id @default(uuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id])
+  amountCents           Int
+  currency              String   @default("USD")
+  status                String
+  provider              String
+  providerTransactionId String?
+  paymentMethod         String?
+  description           String?
+  createdAt             DateTime @default(now())
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model PlaybackState {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  trackId    String
+  track      Track    @relation(fields: [trackId], references: [id])
+  positionMs Int      @default(0)
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@unique([userId, trackId])
+}
