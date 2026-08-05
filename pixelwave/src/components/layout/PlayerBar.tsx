@@ -20,7 +20,7 @@ export function PlayerBar() {
   useEffect(() => {
     if (currentTrack && isLoggedIn) {
       fetchApi<any>(`/sessions/progress/${currentTrack.id}`)
-        .then(res => {
+        .then((res: any) => {
           if (res.data?.positionMs && playerRef.current) {
             const posSec = res.data.positionMs / 1000;
             playerRef.current.seekTo(posSec, 'seconds');

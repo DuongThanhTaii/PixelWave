@@ -21,11 +21,11 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     fetchApi('/tracks')
-      .then(res => setTracks(res.data))
+      .then((res: any) => setTracks(res.data))
       .catch(console.error);
     
     fetchApi('/fandoms')
-      .then(res => setFandoms(res.data))
+      .then((res: any) => setFandoms(res.data))
       .catch(console.error);
   }, []);
 
