@@ -26,16 +26,16 @@ export default function TracksAdmin() {
 
   const loadData = async () => {
     try {
-      const [tracksRes, artistsRes, albumsRes, fandomsRes] = await Promise.all([
+      const [tracksData, artistsData, albumsData, fandomsData] = await Promise.all([
         fetchApi('/admin/tracks'),
         fetchApi('/admin/artists'),
         fetchApi('/admin/albums'),
         fetchApi('/admin/fandoms')
       ]) as any[];
-      if (tracksRes.success) setTracks(tracksRes.data);
-      if (artistsRes.success) setArtists(artistsRes.data.map((a: any) => ({ value: a.id, label: a.name })));
-      if (albumsRes.success) setAlbums(albumsRes.data.map((a: any) => ({ value: a.id, label: a.title })));
-      if (fandomsRes.success) setFandoms(fandomsRes.data.map((a: any) => ({ value: a.id, label: a.name })));
+      if (tracksData) setTracks(tracksData);
+      if (artistsData) setArtists(artistsData.map((a: any) => ({ value: a.id, label: a.name })));
+      if (albumsData) setAlbums(albumsData.map((a: any) => ({ value: a.id, label: a.title })));
+      if (fandomsData) setFandoms(fandomsData.map((a: any) => ({ value: a.id, label: a.name })));
     } catch (e) {
       console.error(e);
     }
@@ -114,12 +114,12 @@ export default function TracksAdmin() {
     setIsFetchingLyrics(true);
     setStatus('Fetching lyrics from YouTube...');
     try {
-      const res: any = await fetchApi('/admin/tracks/youtube-lyrics', {
+      const data: any = await fetchApi('/admin/tracks/youtube-lyrics', {
         method: 'POST',
         body: JSON.stringify({ videoId: trackData.youtubeVideoId })
       });
-      if (res.data) {
-        setTrackData({ ...trackData, lyrics: res.data });
+      if (data) {
+        setTrackData({ ...trackData, lyrics: data });
         setStatus('Lyrics fetched successfully!');
       }
     } catch (err: any) {

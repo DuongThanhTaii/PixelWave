@@ -11,9 +11,9 @@ export default function FandomsAdmin() {
 
   const loadFandoms = async () => {
     try {
-      const res: any = await fetchApi('/admin/fandoms');
-      if (res.success) {
-        setFandoms(res.data);
+      const data: any = await fetchApi('/admin/fandoms');
+      if (data) {
+        setFandoms(data);
       }
     } catch (e) {
       console.error(e);

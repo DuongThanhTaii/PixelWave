@@ -13,13 +13,13 @@ export default function AlbumsAdmin() {
 
   const loadData = async () => {
     try {
-      const [albumsRes, artistsRes] = await Promise.all([
+      const [albumsData, artistsData] = await Promise.all([
         fetchApi('/admin/albums'),
         fetchApi('/admin/artists')
       ]) as any[];
-      if (albumsRes.success) setAlbums(albumsRes.data);
-      if (artistsRes.success) {
-        setArtists(artistsRes.data.map((a: any) => ({ value: a.id, label: a.name })));
+      if (albumsData) setAlbums(albumsData);
+      if (artistsData) {
+        setArtists(artistsData.map((a: any) => ({ value: a.id, label: a.name })));
       }
     } catch (e) {
       console.error(e);

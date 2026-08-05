@@ -9,9 +9,9 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ tracks: '...', artists: '...', fandoms: '...' });
 
   useEffect(() => {
-    fetchApi('/admin/stats').then((res: any) => {
-      if (res.success) {
-        setStats(res.data);
+    fetchApi('/admin/stats').then((data: any) => {
+      if (data) {
+        setStats(data);
       }
     }).catch(console.error);
   }, []);

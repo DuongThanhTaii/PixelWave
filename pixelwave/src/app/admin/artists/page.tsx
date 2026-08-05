@@ -11,9 +11,9 @@ export default function ArtistsAdmin() {
 
   const loadArtists = async () => {
     try {
-      const res: any = await fetchApi('/admin/artists');
-      if (res.success) {
-        setArtists(res.data);
+      const data: any = await fetchApi('/admin/artists');
+      if (data) {
+        setArtists(data);
       }
     } catch (e) {
       console.error(e);
