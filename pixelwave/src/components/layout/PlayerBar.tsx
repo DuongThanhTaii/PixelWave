@@ -58,6 +58,12 @@ export function PlayerBar() {
     }
   };
 
+  const handleSeekTouchEnd = (e: React.TouchEvent<HTMLInputElement>) => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(parseFloat((e.target as HTMLInputElement).value));
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
@@ -142,7 +148,7 @@ export function PlayerBar() {
               value={played}
               onChange={handleSeekChange}
               onMouseUp={handleSeekMouseUp}
-              onTouchEnd={handleSeekMouseUp}
+              onTouchEnd={handleSeekTouchEnd}
               className="w-full h-1 bg-white border border-black rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--color-pw-cyan-glow)] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-black [&::-webkit-slider-thumb]:rounded-full cursor-pointer relative z-10"
               style={{
                 background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, white ${played * 100}%)`
