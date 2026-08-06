@@ -135,3 +135,35 @@ export const getPublicArtistById = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+export const getPublicTrackById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const track: any = await prisma.track.findUnique({
+      where: { id },
+      include: {
+        artist: {
+          select: { id: true, name: true, slug: true, avatarUrl: true }
+        },
+        album: {
+          select: { id: true, title: true, artworkUrl: true }
+        }
+      }
+    });
+
+    if (!track) {
+      res.status(404).json({ success: false, message: 'Track not found' });
+      return;
+    }
+
+    const serialized = {
+      ...track,
+      playCount: track.playCount.toString()
+    };
+
+    res.json({ success: true, data: serialized });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

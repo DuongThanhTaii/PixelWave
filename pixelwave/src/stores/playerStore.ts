@@ -1,14 +1,21 @@
 import { create } from "zustand";
 import { fetchApi } from "../lib/api";
 
-interface TrackData {
+interface ArtistData {
+  id?: string;
+  name: string;
+  slug?: string;
+  avatarUrl?: string;
+}
+
+export interface TrackData {
   id: string;
   title: string;
-  artist: { name: string };
-  audioUrl?: string;
-  youtubeVideoId?: string;
-  coverArtUrl?: string;
-  lyrics?: string;
+  artist: ArtistData;
+  audioUrl?: string | null;
+  youtubeVideoId?: string | null;
+  coverArtUrl?: string | null;
+  lyrics?: string | null;
 }
 
 interface PlayerState {
@@ -32,13 +39,14 @@ export const usePlayerStore = create<PlayerState>((set) => ({
   isExpanded: false,
   volume: 1,
   queue: [],
-  play: (track) => set({ currentTrack: track, isPlaying: true, isExpanded: true }),
+  play: (track) => set({ currentTrack: track, isPlaying: true }),
   pause: () => set({ isPlaying: false }),
   setVolume: (volume) => set({ volume }),
   fetchAndPlayTrack: async (trackId) => {
     try {
-      const track = await fetchApi<TrackData>(`/tracks/${trackId}`);
-      set({ currentTrack: track, isPlaying: true, isExpanded: true });
+      // Use the public endpoint (no auth required)
+      const track = await fetchApi<TrackData>(`/public/tracks/${trackId}`);
+      set({ currentTrack: track, isPlaying: true });
     } catch (e) {
       console.error("Failed to fetch track", e);
     }
