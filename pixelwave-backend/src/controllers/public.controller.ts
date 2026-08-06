@@ -63,3 +63,75 @@ export const globalSearch = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+export const getPublicAlbumById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const album = await prisma.album.findUnique({
+      where: { id },
+      include: {
+        artist: true,
+        tracks: {
+          orderBy: { trackNumber: 'asc' }
+        }
+      }
+    });
+
+    if (!album) {
+      res.status(404).json({ success: false, message: 'Album not found' });
+      return;
+    }
+
+    const serialized = {
+      ...album,
+      tracks: album.tracks.map((t: any) => ({
+        ...t,
+        playCount: t.playCount.toString()
+      }))
+    };
+
+    res.json({ success: true, data: serialized });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export const getPublicArtistById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const artist = await prisma.artist.findUnique({
+      where: { id },
+      include: {
+        albums: {
+          orderBy: { releaseDate: 'desc' }
+        },
+        tracks: {
+          orderBy: { playCount: 'desc' },
+          take: 10
+        }
+      }
+    });
+
+    if (!artist) {
+      res.status(404).json({ success: false, message: 'Artist not found' });
+      return;
+    }
+
+    // Convert bigints for JSON serialization
+    const serialized = {
+      ...artist,
+      totalStreams: artist.totalStreams.toString(),
+      totalPlays: artist.totalPlays.toString(),
+      tracks: artist.tracks.map((t: any) => ({
+        ...t,
+        playCount: t.playCount.toString()
+      }))
+    };
+
+    res.json({ success: true, data: serialized });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

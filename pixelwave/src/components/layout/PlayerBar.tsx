@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2 } from "lucide-react";
 import { usePlayerStore } from "@/stores/playerStore";
 import ReactPlayerComponent from "react-player";
+import { NowPlayingOverlay } from "../music/NowPlayingOverlay";
 const ReactPlayer = ReactPlayerComponent as any;
 import { fetchApi } from "@/lib/api";
 import { useUserStore } from "@/stores/userStore";
 
 export function PlayerBar() {
-  const { currentTrack, isPlaying, play, pause, volume, setVolume } = usePlayerStore();
+  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand } = usePlayerStore();
   const { isLoggedIn, userId } = useUserStore();
   const [played, setPlayed] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
@@ -79,9 +80,19 @@ export function PlayerBar() {
     : currentTrack.audioUrl;
 
   return (
-    <div 
-      className="fixed bottom-[56px] md:bottom-0 left-0 w-full h-[80px] bg-gradient-glass backdrop-blur-xl border-t-2 border-black flex items-center justify-between px-4 md:px-6 z-[100]"
-    >
+    <>
+      <NowPlayingOverlay
+        played={played}
+        playedSeconds={playedSeconds}
+        duration={duration}
+        handleSeekChange={handleSeekChange}
+        handleSeekMouseUp={handleSeekMouseUp}
+        handleSeekTouchEnd={handleSeekTouchEnd}
+        formatTime={formatTime}
+      />
+      <div 
+        className="fixed bottom-[56px] md:bottom-0 left-0 w-full h-[80px] bg-gradient-glass backdrop-blur-xl border-t-2 border-black flex items-center justify-between px-4 md:px-6 z-[100]"
+      >
       {/* Hidden Player */}
       {url && (
         <div className="hidden">
@@ -99,17 +110,24 @@ export function PlayerBar() {
       )}
 
       {/* Left: Album Art & Track Info */}
-      <div className="flex items-center gap-4 w-1/3">
-        <div className="w-14 h-14 bg-[var(--color-pw-surface-300)] rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden shrink-0 flex items-center justify-center">
+      <div 
+        className="flex items-center gap-4 w-1/3 cursor-pointer group"
+        onClick={expand}
+        title="Open Now Playing"
+      >
+        <div className="w-14 h-14 bg-[var(--color-pw-surface-300)] rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
           {currentTrack.coverArtUrl ? (
             <img src={currentTrack.coverArtUrl} alt="Cover" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-tr from-[var(--color-pw-deep-purple)] to-[var(--color-pw-cyan-glow)]" />
           )}
         </div>
-        <div className="hidden sm:flex flex-col overflow-hidden">
-          <span className="font-display font-bold text-[18px] truncate">{currentTrack.title}</span>
-          <span className="font-body text-gray-500 text-[12px] truncate">{currentTrack.artist.name}</span>
+        <div className="hidden sm:flex flex-col overflow-hidden group-hover:text-[var(--color-pw-hot-pink)] transition-colors">
+          <span className="font-display font-bold text-[18px] truncate flex items-center gap-2">
+            {currentTrack.title}
+            <Maximize2 className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </span>
+          <span className="font-body text-gray-500 text-[12px] truncate group-hover:text-[var(--color-pw-hot-pink)]">{currentTrack.artist.name}</span>
         </div>
       </div>
 
@@ -178,5 +196,6 @@ export function PlayerBar() {
         </div>
       </div>
     </div>
+    </>
   );
 }
