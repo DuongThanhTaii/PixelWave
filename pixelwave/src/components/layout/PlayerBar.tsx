@@ -107,7 +107,7 @@ export function PlayerBar() {
             onProgress={handleProgress as any}
             onDuration={setDuration as any}
             onEnded={() => pause()}
-            onError={(e) => console.error("ReactPlayer Error:", e)}
+            onError={(e: any) => console.error("ReactPlayer Error:", e)}
             config={{ youtube: { playerVars: { origin: typeof window !== 'undefined' ? window.location.origin : '' } } }}
           />
         </div>
