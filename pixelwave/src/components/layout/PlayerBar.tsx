@@ -95,7 +95,7 @@ export function PlayerBar() {
       >
       {/* Hidden Player */}
       {url && (
-        <div className="hidden">
+        <div className="fixed -top-[2000px] -left-[2000px] w-1 h-1 opacity-0 pointer-events-none overflow-hidden">
 
           <ReactPlayer
             ref={playerRef}

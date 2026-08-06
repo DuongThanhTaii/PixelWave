@@ -40,7 +40,7 @@ export function NowPlayingOverlay({
         <div className="w-12 h-12" /> {/* Spacer */}
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row relative">
+      <div className="flex-1 flex flex-col lg:flex-row relative overflow-hidden min-h-0">
         
         {/* Left: Art & Controls */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 md:p-12 border-b-4 lg:border-b-0 lg:border-r-4 border-black relative overflow-hidden bg-[var(--color-pw-surface-200)]">
