@@ -66,8 +66,8 @@ export const globalSearch = async (req: Request, res: Response) => {
 
 export const getPublicAlbumById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const album = await prisma.album.findUnique({
+    const { id } = req.params as { id: string };
+    const album: any = await prisma.album.findUnique({
       where: { id },
       include: {
         artist: true,
@@ -99,8 +99,8 @@ export const getPublicAlbumById = async (req: Request, res: Response) => {
 
 export const getPublicArtistById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const artist = await prisma.artist.findUnique({
+    const { id } = req.params as { id: string };
+    const artist: any = await prisma.artist.findUnique({
       where: { id },
       include: {
         albums: {

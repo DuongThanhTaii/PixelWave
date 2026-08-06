@@ -32,8 +32,8 @@ export const getTracks = async (req: Request, res: Response): Promise<void> => {
 
 export const getTrackById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const track = await prisma.track.findUnique({
+    const { id } = req.params as { id: string };
+    const track: any = await prisma.track.findUnique({
       where: { id },
       include: {
         artist: {
