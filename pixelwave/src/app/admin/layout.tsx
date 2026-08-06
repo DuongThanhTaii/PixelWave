@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUserStore } from '@/stores/userStore';
-import { LayoutDashboard, Music, Users, Disc3, Star, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Music, Users, Disc3, Star, ShieldCheck, Award } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isLoggedIn, role, token, fetchProfile } = useUserStore();
@@ -35,6 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Tracks', path: '/admin/tracks', icon: <Music size={20} /> },
     { label: 'Fandoms', path: '/admin/fandoms', icon: <Star size={20} /> },
     { label: 'Roles', path: '/admin/users', icon: <ShieldCheck size={20} /> },
+    { label: 'Badges', path: '/admin/badges', icon: <Award size={20} /> },
   ];
 
   return (

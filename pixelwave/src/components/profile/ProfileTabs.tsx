@@ -1,24 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { TrackCard } from "@/components/music/TrackCard";
 import { BadgeCard, BadgeRarity } from "@/components/gamification/BadgeCard";
-
-// Mock Data
-const MOCK_BADGES = [
-  { id: "1", name: "First Pixel", icon: "✨", rarity: "common" as BadgeRarity, isLocked: false },
-  { id: "2", name: "Night Owl", icon: "🦉", rarity: "common" as BadgeRarity, isLocked: false },
-  { id: "3", name: "Color Theory", icon: "🎨", rarity: "epic" as BadgeRarity, isLocked: false },
-  { id: "4", name: "War Hero", icon: "⚔️", rarity: "legendary" as BadgeRarity, isLocked: false },
-  { id: "5", name: "100 Day Streak", icon: "🔥", rarity: "legendary" as BadgeRarity, isLocked: true },
-  { id: "6", name: "Fandom Founder", icon: "👑", rarity: "epic" as BadgeRarity, isLocked: true },
-  { id: "7", name: "Top 1%", icon: "⭐", rarity: "legendary" as BadgeRarity, isLocked: true },
-  { id: "8", name: "Bomb Squad", icon: "💣", rarity: "common" as BadgeRarity, isLocked: true },
-];
+import { fetchApi } from "@/lib/api";
 
 export function ProfileTabs() {
   const [activeTab, setActiveTab] = useState<"overview" | "canvas" | "badges" | "history">("badges");
+  const [badges, setBadges] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchApi<any>('/users/me/badges').then(res => {
+      if (res.data) setBadges(res.data);
+    }).catch(console.error);
+  }, []);
 
   const tabs = [
     { id: "overview", label: "Overview" },
@@ -77,9 +73,20 @@ export function ProfileTabs() {
             </div>
             
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-              {MOCK_BADGES.map(badge => (
-                <BadgeCard key={badge.id} {...badge} />
-              ))}
+              {badges.length > 0 ? badges.map(userBadge => (
+                <BadgeCard 
+                  key={userBadge.id} 
+                  id={userBadge.badge.id}
+                  name={userBadge.badge.name}
+                  icon={userBadge.badge.icon}
+                  rarity={userBadge.badge.rarity as BadgeRarity}
+                  isLocked={!userBadge.unlockedAt}
+                />
+              )) : (
+                <div className="col-span-full py-12 text-center text-[var(--color-on-surface-variant)] font-body">
+                  No badges yet. Keep playing to earn some!
+                </div>
+              )}
             </div>
           </div>
         )}

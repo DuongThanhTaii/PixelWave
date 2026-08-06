@@ -287,3 +287,59 @@ export const getFandoms = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ success: false, message: error.message || 'Failed to fetch fandoms' });
   }
 };
+
+export const createBadge = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, name, description, icon, rarity, category, conditionType, conditionMetric, conditionTarget, conditionTimeWindowMs, animationType } = req.body;
+    
+    if (!id || !name || !description || !icon || !rarity || !category || !conditionType || !conditionMetric || conditionTarget === undefined) {
+      res.status(400).json({ success: false, message: 'Missing required fields' });
+      return;
+    }
+
+    const badge = await prisma.badge.create({
+      data: {
+        id,
+        name,
+        description,
+        icon,
+        rarity,
+        category,
+        conditionType,
+        conditionMetric,
+        conditionTarget: BigInt(conditionTarget),
+        conditionTimeWindowMs: conditionTimeWindowMs ? BigInt(conditionTimeWindowMs) : null,
+        animationType: animationType || null
+      }
+    });
+
+    res.status(201).json({ 
+      success: true, 
+      data: {
+        ...badge,
+        conditionTarget: badge.conditionTarget.toString(),
+        conditionTimeWindowMs: badge.conditionTimeWindowMs?.toString()
+      } 
+    });
+  } catch (error: any) {
+    console.error('createBadge error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to create badge' });
+  }
+};
+
+export const getBadges = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const badges = await prisma.badge.findMany({ orderBy: { createdAt: 'desc' } });
+    
+    const serializedBadges = badges.map((b: any) => ({
+      ...b,
+      conditionTarget: b.conditionTarget.toString(),
+      conditionTimeWindowMs: b.conditionTimeWindowMs?.toString()
+    }));
+
+    res.status(200).json({ success: true, data: serializedBadges });
+  } catch (error: any) {
+    console.error('getBadges error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch badges' });
+  }
+};

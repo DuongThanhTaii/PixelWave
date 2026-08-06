@@ -7,9 +7,10 @@ interface ProfileHeaderProps {
   username: string;
   fandomName: string;
   level: number;
+  avatarUrl?: string;
 }
 
-export function ProfileHeader({ username, fandomName, level }: ProfileHeaderProps) {
+export function ProfileHeader({ username, fandomName, level, avatarUrl }: ProfileHeaderProps) {
   return (
     <div className="relative w-full h-[200px] bg-gradient-chrome rounded-xl border-2 border-black shadow-brutal flex items-end p-6 mb-16">
       
@@ -22,8 +23,12 @@ export function ProfileHeader({ username, fandomName, level }: ProfileHeaderProp
       <div className="absolute -bottom-12 left-6 md:left-12 flex items-end gap-6 z-10">
         <div className="relative">
           {/* Avatar */}
-          <div className="w-24 h-24 bg-[var(--color-pw-surface-300)] border-4 border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_#000] overflow-hidden">
-            <User className="w-12 h-12 text-[var(--color-on-surface-variant)]" />
+          <div className="w-24 h-24 bg-[var(--color-pw-surface-300)] border-4 border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_#000] overflow-hidden relative">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-12 h-12 text-[var(--color-on-surface-variant)]" />
+            )}
           </div>
           
           {/* Wave Level Badge */}
@@ -36,7 +41,7 @@ export function ProfileHeader({ username, fandomName, level }: ProfileHeaderProp
 
         {/* User Info */}
         <div className="mb-2">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-black uppercase tracking-tight leading-none drop-shadow-md">
+          <h1 className="inline-block px-3 py-1 bg-white border-2 border-black text-3xl md:text-4xl font-display font-bold text-black uppercase tracking-tight leading-none shadow-[2px_2px_0_0_#000]">
             {username}
           </h1>
           <p className="font-body font-bold text-[var(--color-pw-deep-purple)] mt-1 drop-shadow-sm">
