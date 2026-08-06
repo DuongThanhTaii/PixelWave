@@ -223,10 +223,10 @@ export default function TracksAdmin() {
 
         {!uploadMode && (
           <div className="flex flex-col md:flex-row gap-6 mt-6">
-            <button onClick={() => setUploadMode('manual')} className="group flex-1 border-4 border-black p-8 bg-[var(--color-pw-vibrant-blue)] text-white hover:-translate-y-2 hover:-translate-x-2 shadow-[8px_8px_0_0_#000] hover:shadow-[12px_12px_0_0_#000] transition-all font-bold uppercase text-xl flex flex-col items-center justify-center gap-3">
-              <UploadCloud className="w-10 h-10 group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+            <button onClick={() => setUploadMode('manual')} className="group flex-1 border-4 border-black p-8 bg-white text-black hover:-translate-y-2 hover:-translate-x-2 shadow-[8px_8px_0_0_#000] hover:shadow-[12px_12px_0_0_#000] transition-all font-bold uppercase text-xl flex flex-col items-center justify-center gap-3">
+              <UploadCloud className="w-10 h-10 group-hover:scale-110 transition-transform text-[var(--color-pw-hot-pink)]" strokeWidth={2.5} />
               <span>Manual Upload</span>
-              <p className="text-sm font-normal normal-case text-[var(--color-pw-surface-100)] opacity-90">Upload MP3/WAV files directly</p>
+              <p className="text-sm font-normal normal-case text-gray-600 opacity-90">Upload MP3/WAV files directly</p>
             </button>
             <button onClick={() => setUploadMode('youtube')} className="group flex-1 border-4 border-black p-8 bg-[#ff3366] text-white hover:-translate-y-2 hover:-translate-x-2 shadow-[8px_8px_0_0_#000] hover:shadow-[12px_12px_0_0_#000] transition-all font-bold uppercase text-xl flex flex-col items-center justify-center gap-3">
               <PlaySquare className="w-10 h-10 group-hover:scale-110 transition-transform" strokeWidth={2.5} />

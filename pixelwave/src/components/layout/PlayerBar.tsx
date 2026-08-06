@@ -180,6 +180,19 @@ export function PlayerBar() {
 
       {/* PlayerBar */}
       <div className="fixed bottom-[56px] md:bottom-0 left-0 w-full h-[80px] bg-gradient-glass backdrop-blur-xl border-t-2 border-black flex items-center justify-between px-4 md:px-6 z-[100]">
+        
+        {/* Global Top-edge Progress Bar */}
+        <div className="absolute top-[-2px] left-0 w-full h-1.5 z-10 group/progress cursor-pointer flex items-center">
+          <input
+            type="range" min={0} max={0.999999} step="any" value={played}
+            onChange={(e) => handleSeek(parseFloat(e.target.value))}
+            className="w-full h-full appearance-none bg-transparent cursor-pointer relative z-20 outline-none
+                       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--color-pw-cyan-glow)] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-black [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:opacity-0 group-hover/progress:[&::-webkit-slider-thumb]:opacity-100 [&::-webkit-slider-thumb]:transition-opacity
+                       [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:bg-[var(--color-pw-cyan-glow)] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-black [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:opacity-0 group-hover/progress:[&::-moz-range-thumb]:opacity-100 [&::-moz-range-thumb]:transition-opacity"
+            style={{ background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, transparent ${played * 100}%)` }}
+          />
+        </div>
+
         {/* Left: Track Info */}
         <div className="flex items-center gap-3 w-1/3 min-w-0 cursor-pointer group" onClick={expand}>
           <div className="w-12 h-12 bg-[var(--color-pw-surface-300)] rounded-lg border-2 border-black shadow-[3px_3px_0px_0px_#000] overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
@@ -198,31 +211,23 @@ export function PlayerBar() {
           </div>
         </div>
 
-        {/* Center: Controls + Progress */}
+        {/* Center: Controls */}
         <div className="flex flex-col items-center flex-1 max-w-[400px] px-2">
-          <div className="flex items-center gap-5 mb-1">
+          <div className="flex items-center justify-center gap-5 w-full">
+            <span className="hidden md:inline text-[10px] font-data text-gray-500 w-8 text-right">{formatTime(playedSeconds)}</span>
             <button className="hover:scale-110 transition-transform text-[var(--color-on-background)]">
               <SkipBack className="w-4 h-4 fill-current" />
             </button>
             <button
               onClick={() => isPlaying ? pause() : play(currentTrack)}
-              className="w-10 h-10 rounded-full bg-[var(--color-pw-hot-pink)] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000] hover:shadow-[5px_5px_0px_0px_#000] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all"
+              className="w-10 h-10 rounded-full bg-[var(--color-pw-hot-pink)] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000] hover:shadow-[5px_5px_0px_0px_#000] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all shrink-0"
             >
               {isPlaying ? <Pause className="w-4 h-4 text-white fill-white" /> : <Play className="w-4 h-4 text-white fill-white ml-0.5" />}
             </button>
             <button className="hover:scale-110 transition-transform text-[var(--color-on-background)]">
               <SkipForward className="w-4 h-4 fill-current" />
             </button>
-          </div>
-          <div className="w-full flex items-center gap-2">
-            <span className="text-[10px] font-data text-gray-500 w-8 text-right">{formatTime(playedSeconds)}</span>
-            <input
-              type="range" min={0} max={0.999999} step="any" value={played}
-              onChange={(e) => handleSeek(parseFloat(e.target.value))}
-              className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
-              style={{ background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #e5e7eb ${played * 100}%)` }}
-            />
-            <span className="text-[10px] font-data text-gray-500 w-8">{formatTime(duration)}</span>
+            <span className="hidden md:inline text-[10px] font-data text-gray-500 w-8">{formatTime(duration)}</span>
           </div>
         </div>
 
