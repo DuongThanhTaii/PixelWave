@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { getSubtitles } from 'youtube-captions-scraper';
+import axios from 'axios';
 
 export const createArtist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -161,11 +162,11 @@ export const fetchYoutubeInfo = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const noembedRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-    const noembedData = await noembedRes.json();
+    const noembedRes = await axios.get(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+    const noembedData = noembedRes.data;
 
-    const ytRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
-    const ytHtml = await ytRes.text();
+    const ytRes = await axios.get(`https://www.youtube.com/watch?v=${videoId}`);
+    const ytHtml = ytRes.data;
     const durationMatch = ytHtml.match(/"lengthSeconds":"(\d+)"/);
     const durationMs = durationMatch ? parseInt(durationMatch[1]) * 1000 : 0;
 
