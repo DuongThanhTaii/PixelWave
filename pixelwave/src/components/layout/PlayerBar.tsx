@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2 } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2, Repeat } from "lucide-react";
 import { usePlayerStore } from "@/stores/playerStore";
 import { NowPlayingOverlay } from "../music/NowPlayingOverlay";
 import { fetchApi } from "@/lib/api";
@@ -9,7 +9,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 
 export function PlayerBar() {
-  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand, isExpanded } = usePlayerStore();
+  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand, isExpanded, isLooping, toggleLoop } = usePlayerStore();
   const { isLoggedIn } = useUserStore();
 
   const [played, setPlayed] = useState(0);
@@ -44,7 +44,16 @@ export function PlayerBar() {
     volume,
     onProgress: handleProgress,
     onDuration: setDuration,
-    onEnded: pause,
+    onEnded: () => {
+      if (isLooping && currentTrack) {
+        // For YouTube, return true to indicate it should loop, and call play to ensure state is playing
+        play(currentTrack);
+        return true;
+      } else {
+        pause();
+        return false;
+      }
+    },
   });
 
   // Reset on track change
@@ -154,7 +163,13 @@ export function PlayerBar() {
           ref={audioRef}
           src={currentTrack.audioUrl}
           onLoadedMetadata={(e) => setDuration((e.target as HTMLAudioElement).duration)}
-          onEnded={() => pause()}
+          onEnded={() => {
+             // For HTML audio, if it's not looping, it ends and we pause.
+             // If looping is true, it shouldn't hit onEnded due to the loop attribute, but just in case.
+             if (isLooping) play(currentTrack);
+             else pause();
+          }}
+          loop={isLooping}
           preload="metadata"
           style={{ display: "none" }}
         />
@@ -215,6 +230,14 @@ export function PlayerBar() {
         <div className="flex flex-col items-center flex-1 max-w-[400px] px-2">
           <div className="flex items-center justify-center gap-5 w-full">
             <span className="hidden md:inline text-[10px] font-data text-gray-500 w-8 text-right">{formatTime(playedSeconds)}</span>
+            
+            <button 
+              onClick={toggleLoop}
+              className={`hover:scale-110 transition-transform ${isLooping ? 'text-[var(--color-pw-hot-pink)]' : 'text-gray-500'}`}
+            >
+              <Repeat className="w-4 h-4" />
+            </button>
+
             <button className="hover:scale-110 transition-transform text-[var(--color-on-background)]">
               <SkipBack className="w-4 h-4 fill-current" />
             </button>

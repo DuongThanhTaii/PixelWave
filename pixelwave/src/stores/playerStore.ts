@@ -22,10 +22,12 @@ interface PlayerState {
   currentTrack: TrackData | null;
   isPlaying: boolean;
   isExpanded: boolean;
+  isLooping: boolean;
   volume: number;
   queue: TrackData[];
   play: (track: TrackData) => void;
   pause: () => void;
+  toggleLoop: () => void;
   setVolume: (vol: number) => void;
   fetchAndPlayTrack: (trackId: string) => Promise<void>;
   toggleExpand: () => void;
@@ -37,10 +39,12 @@ export const usePlayerStore = create<PlayerState>((set) => ({
   currentTrack: null,
   isPlaying: false,
   isExpanded: false,
+  isLooping: false,
   volume: 1,
   queue: [],
   play: (track) => set({ currentTrack: track, isPlaying: true }),
   pause: () => set({ isPlaying: false }),
+  toggleLoop: () => set((state) => ({ isLooping: !state.isLooping })),
   setVolume: (volume) => set({ volume }),
   fetchAndPlayTrack: async (trackId) => {
     try {

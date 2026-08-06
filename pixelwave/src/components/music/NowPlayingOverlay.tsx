@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, Play, Pause, SkipBack, SkipForward, Volume2, Image, Video } from "lucide-react";
+import { ChevronDown, Play, Pause, SkipBack, SkipForward, Volume2, Image, Video, Repeat } from "lucide-react";
 import { LyricsViewer } from "./LyricsViewer";
 import { usePlayerStore } from "@/stores/playerStore";
 
@@ -18,7 +18,7 @@ export function NowPlayingOverlay({
   played, playedSeconds, duration, onSeek, formatTime,
   isYoutube, showVideo, onToggleVideo
 }: NowPlayingOverlayProps) {
-  const { currentTrack, isPlaying, play, pause, volume, setVolume, isExpanded, collapse } = usePlayerStore();
+  const { currentTrack, isPlaying, play, pause, volume, setVolume, isExpanded, collapse, isLooping, toggleLoop } = usePlayerStore();
 
   if (!isExpanded || !currentTrack) return null;
 
@@ -112,20 +112,32 @@ export function NowPlayingOverlay({
             </div>
           </div>
 
-          {/* Controls - Brutalist but slightly more compact */}
-          <div className="flex items-center gap-6 mb-8 relative z-10">
-            <button className="w-12 h-12 flex items-center justify-center border-4 border-black bg-white shadow-[3px_3px_0_0_#000] hover:shadow-[5px_5px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">
-              <SkipBack className="w-5 h-5 text-black fill-current" />
+          {/* Controls - Matched with PlayerBar style + Repeat */}
+          <div className="flex items-center justify-center gap-6 sm:gap-8 mb-8 relative z-10 w-full max-w-sm">
+            <button 
+              onClick={toggleLoop}
+              className={`hover:scale-110 transition-transform ${isLooping ? 'text-[var(--color-pw-hot-pink)]' : 'text-gray-500'}`}
+            >
+              <Repeat className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
+
+            <button className="hover:scale-110 transition-transform text-black">
+              <SkipBack className="w-6 h-6 sm:w-7 sm:h-7 fill-current" />
+            </button>
+            
             <button
               onClick={() => isPlaying ? pause() : play(currentTrack)}
-              className="w-16 h-16 rounded-none bg-[var(--color-pw-neon-lime)] border-4 border-black flex items-center justify-center shadow-[6px_6px_0_0_#000] hover:shadow-[8px_8px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all duration-200"
+              className="w-16 h-16 rounded-full bg-[var(--color-pw-hot-pink)] border-4 border-black flex items-center justify-center shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-[0px_0px_0_0_#000] active:translate-x-1 active:translate-y-1 transition-all duration-200"
             >
-              {isPlaying ? <Pause className="w-8 h-8 text-black fill-black" /> : <Play className="w-8 h-8 text-black fill-black ml-1" />}
+              {isPlaying ? <Pause className="w-8 h-8 text-white fill-white" /> : <Play className="w-8 h-8 text-white fill-white ml-1" />}
             </button>
-            <button className="w-12 h-12 flex items-center justify-center border-4 border-black bg-white shadow-[3px_3px_0_0_#000] hover:shadow-[5px_5px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">
-              <SkipForward className="w-5 h-5 text-black fill-current" />
+            
+            <button className="hover:scale-110 transition-transform text-black">
+              <SkipForward className="w-6 h-6 sm:w-7 sm:h-7 fill-current" />
             </button>
+
+            {/* Spacer to balance the Repeat button visually */}
+            <div className="w-5 sm:w-6"></div>
           </div>
 
           {/* Volume - Soft & Simple style */}

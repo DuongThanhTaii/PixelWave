@@ -44,7 +44,7 @@ interface UseYTPlayerOptions {
   volume: number;
   onProgress: (played: number, playedSeconds: number) => void;
   onDuration: (duration: number) => void;
-  onEnded: () => void;
+  onEnded: () => boolean | void;
 }
 
 export function useYouTubePlayer({
@@ -138,7 +138,11 @@ export function useYouTubePlayer({
           onStateChange: (event: any) => {
             // YT.PlayerState.ENDED = 0
             if (event.data === 0) {
-              onEndedRef.current();
+              const shouldLoop = onEndedRef.current();
+              if (shouldLoop === true) {
+                event.target.seekTo(0);
+                event.target.playVideo();
+              }
             }
           },
           onError: (event: any) => {
