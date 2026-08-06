@@ -15,7 +15,7 @@ export default function TracksAdmin() {
   const [isFetchingYoutubeInfo, setIsFetchingYoutubeInfo] = useState(false);
 
   const [trackData, setTrackData] = useState({
-    title: '', slug: '', artistId: '', albumId: '', fandomId: '', youtubeVideoId: '', lyrics: '', durationMs: 0
+    title: '', slug: '', artistId: '', albumId: '', fandomId: '', youtubeVideoId: '', lyrics: '', durationInput: ''
   });
   const [trackAudioFile, setTrackAudioFile] = useState<File | null>(null);
   const [trackCoverFile, setTrackCoverFile] = useState<File | null>(null);
@@ -93,7 +93,7 @@ export default function TracksAdmin() {
           title: data.title, 
           slug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
           youtubeVideoId: videoId,
-          durationMs: data.durationMs || 0
+          durationInput: data.durationMs ? data.durationMs.toString() : ''
         }));
         setTrackCoverUrl(data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`);
         setStatus('YouTube info fetched successfully!');
@@ -146,6 +146,18 @@ export default function TracksAdmin() {
   };
 
 
+  const parseDurationInput = (val: string) => {
+    if (!val) return 0;
+    if (/^\d+$/.test(val)) return parseInt(val, 10);
+    const parts = val.split(':').map(Number);
+    if (parts.length === 2) {
+      return (parts[0] * 60 + parts[1]) * 1000;
+    } else if (parts.length === 3) {
+      return (parts[0] * 3600 + parts[1] * 60 + parts[2]) * 1000;
+    }
+    return 0;
+  };
+
   const handleCreateTrack = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('Creating track... Uploading files if any...');
@@ -165,7 +177,7 @@ export default function TracksAdmin() {
         slug: trackData.slug,
         artistId: trackData.artistId,
         source: trackData.youtubeVideoId ? 'youtube' : 'upload',
-        durationMs: Number(trackData.durationMs)
+        durationMs: parseDurationInput(trackData.durationInput)
       };
 
       if (trackData.albumId) payload.albumId = trackData.albumId;
@@ -180,7 +192,7 @@ export default function TracksAdmin() {
         body: JSON.stringify(payload)
       });
       setStatus('Track created successfully!');
-      setTrackData({ title: '', slug: '', artistId: '', albumId: '', fandomId: '', youtubeVideoId: '', lyrics: '', durationMs: 0 });
+      setTrackData({ title: '', slug: '', artistId: '', albumId: '', fandomId: '', youtubeVideoId: '', lyrics: '', durationInput: '' });
       setTrackAudioFile(null);
       setTrackCoverFile(null);
       setTrackCoverUrl('');
@@ -294,7 +306,11 @@ export default function TracksAdmin() {
               <input type="file" accept="image/*" className="file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-[var(--color-pw-neon-lime)] file:text-black file:cursor-pointer hover:file:opacity-90" onChange={e => setTrackCoverFile(e.target.files?.[0] || null)} />
             </div>
 
-            <input type="number" placeholder="Duration (ms)" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.durationMs || ''} onChange={e => setTrackData({...trackData, durationMs: parseInt(e.target.value) || 0})} />
+            <div className="flex flex-col gap-1">
+              <span className="font-bold block">Duration (e.g. 03:45 or 225000) <span className="text-red-500">*</span></span>
+              <span className="text-xs text-gray-500">Auto-filled if available. Format: MM:SS or ms.</span>
+              <input type="text" placeholder="MM:SS or milliseconds" required className="border-2 border-black p-2 outline-none focus:bg-gray-100" value={trackData.durationInput} onChange={e => setTrackData({...trackData, durationInput: e.target.value})} />
+            </div>
             
             <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
               <div className="flex justify-between items-center">

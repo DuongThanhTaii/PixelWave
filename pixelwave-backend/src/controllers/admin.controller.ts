@@ -165,10 +165,19 @@ export const fetchYoutubeInfo = async (req: Request, res: Response): Promise<voi
     const noembedRes = await axios.get(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
     const noembedData = noembedRes.data;
 
-    const ytRes = await axios.get(`https://www.youtube.com/watch?v=${videoId}`);
-    const ytHtml = ytRes.data;
-    const durationMatch = ytHtml.match(/"lengthSeconds":"(\d+)"/);
-    const durationMs = durationMatch ? parseInt(durationMatch[1]) * 1000 : 0;
+    let durationMs = 0;
+    try {
+      const ytRes = await axios.get(`https://www.youtube.com/watch?v=${videoId}`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+      });
+      const ytHtml = ytRes.data;
+      const durationMatch = ytHtml.match(/"lengthSeconds":"(\d+)"/);
+      if (durationMatch) {
+        durationMs = parseInt(durationMatch[1]) * 1000;
+      }
+    } catch (e: any) {
+      console.warn('Could not fetch duration from youtube html:', e.message);
+    }
 
     res.status(200).json({
       success: true,
