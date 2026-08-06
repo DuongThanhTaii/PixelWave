@@ -29,3 +29,32 @@ export const getTracks = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+export const getTrackById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const track = await prisma.track.findUnique({
+      where: { id },
+      include: {
+        artist: {
+          select: { name: true, slug: true, avatarUrl: true }
+        }
+      }
+    });
+
+    if (!track) {
+      res.status(404).json({ success: false, message: 'Track not found' });
+      return;
+    }
+
+    const serialized = {
+      ...track,
+      playCount: track.playCount.toString()
+    };
+
+    res.status(200).json({ success: true, data: serialized });
+  } catch (error) {
+    console.error('getTrackById error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
