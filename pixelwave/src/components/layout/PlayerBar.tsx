@@ -1,51 +1,57 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2, ChevronDown } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2 } from "lucide-react";
 import { usePlayerStore } from "@/stores/playerStore";
+import ReactPlayerComponent from "react-player/youtube";
 import { NowPlayingOverlay } from "../music/NowPlayingOverlay";
 import { fetchApi } from "@/lib/api";
 import { useUserStore } from "@/stores/userStore";
 
+const ReactPlayer = ReactPlayerComponent as any;
+
 export function PlayerBar() {
-  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand } = usePlayerStore();
+  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand, isExpanded } = usePlayerStore();
   const { isLoggedIn } = useUserStore();
 
   const [played, setPlayed] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [ytReady, setYtReady] = useState(false);
 
+  // For native audio (audioUrl tracks)
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // For YouTube (youtubeVideoId tracks)
+  const ytRef = useRef<any>(null);
   const lastSavedPosition = useRef<number>(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const audioUrl = currentTrack?.audioUrl || null;
+  const isYoutube = !!(currentTrack?.youtubeVideoId && !currentTrack?.audioUrl);
+  const isAudio = !!(currentTrack?.audioUrl);
 
-  // When track changes, reset state
+  // Reset on track change
   useEffect(() => {
     setPlayed(0);
     setPlayedSeconds(0);
     setDuration(0);
+    setYtReady(false);
     lastSavedPosition.current = 0;
   }, [currentTrack?.id]);
 
-  // Sync isPlaying with audio element
+  // Sync native audio with isPlaying
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    if (!isAudio || !audioRef.current) return;
     if (isPlaying) {
-      audio.play().catch(console.error);
+      audioRef.current.play().catch(console.error);
     } else {
-      audio.pause();
+      audioRef.current.pause();
     }
-  }, [isPlaying, currentTrack?.id]);
+  }, [isPlaying, isAudio, currentTrack?.id]);
 
-  // Progress tracking interval
+  // Progress tracking for native audio
   useEffect(() => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-    }
-    if (isPlaying && audioRef.current) {
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    if (isPlaying && isAudio) {
       progressIntervalRef.current = setInterval(() => {
         const audio = audioRef.current;
         if (!audio) return;
@@ -54,8 +60,6 @@ export function PlayerBar() {
         setPlayedSeconds(cur);
         setDuration(dur);
         if (dur > 0) setPlayed(cur / dur);
-
-        // Save progress every 5 seconds
         if (isLoggedIn && currentTrack && cur - lastSavedPosition.current >= 5) {
           lastSavedPosition.current = cur;
           fetchApi('/sessions/progress', {
@@ -65,19 +69,31 @@ export function PlayerBar() {
         }
       }, 500);
     }
-    return () => {
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-    };
-  }, [isPlaying, currentTrack?.id, isLoggedIn]);
+    return () => { if (progressIntervalRef.current) clearInterval(progressIntervalRef.current); };
+  }, [isPlaying, isAudio, currentTrack?.id, isLoggedIn]);
 
-  const handleSeek = (value: number) => {
-    const audio = audioRef.current;
-    if (audio && duration > 0) {
-      audio.currentTime = value * duration;
+  const handleSeek = useCallback((value: number) => {
+    if (isAudio && audioRef.current && duration > 0) {
+      audioRef.current.currentTime = value * duration;
       setPlayed(value);
       setPlayedSeconds(value * duration);
+    } else if (isYoutube && ytRef.current) {
+      ytRef.current.seekTo(value, 'fraction');
+      setPlayed(value);
     }
-  };
+  }, [isAudio, isYoutube, duration]);
+
+  const handleYTProgress = useCallback((state: { played: number; playedSeconds: number }) => {
+    setPlayed(state.played);
+    setPlayedSeconds(state.playedSeconds);
+    if (isLoggedIn && currentTrack && state.playedSeconds - lastSavedPosition.current >= 5) {
+      lastSavedPosition.current = state.playedSeconds;
+      fetchApi('/sessions/progress', {
+        method: 'POST',
+        body: JSON.stringify({ trackId: currentTrack.id, positionMs: state.playedSeconds * 1000 })
+      }).catch(console.error);
+    }
+  }, [isLoggedIn, currentTrack]);
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -88,18 +104,61 @@ export function PlayerBar() {
 
   if (!currentTrack) return null;
 
+  const ytUrl = currentTrack.youtubeVideoId
+    ? `https://www.youtube.com/watch?v=${currentTrack.youtubeVideoId}`
+    : null;
+
   return (
     <>
-      {/* Native HTML5 Audio Element - most reliable for direct audio files */}
-      {audioUrl && (
+      {/* Native HTML5 Audio - for direct MP3/audio file tracks */}
+      {isAudio && currentTrack.audioUrl && (
         <audio
           ref={audioRef}
-          src={audioUrl}
+          src={currentTrack.audioUrl}
           onLoadedMetadata={(e) => setDuration((e.target as HTMLAudioElement).duration)}
           onEnded={() => pause()}
           preload="metadata"
           style={{ display: 'none' }}
         />
+      )}
+
+      {/* YouTube ReactPlayer - MUST be visible (not display:none) for autoplay to work */}
+      {/* Hidden behind PlayerBar using z-index layering, but still "visible" to the browser */}
+      {isYoutube && ytUrl && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '320px',
+            height: '180px',
+            zIndex: 99, // just behind PlayerBar (z-100)
+            pointerEvents: 'none',
+          }}
+        >
+          <ReactPlayer
+            ref={ytRef}
+            url={ytUrl}
+            playing={isPlaying}
+            volume={volume}
+            width="320px"
+            height="180px"
+            onReady={() => setYtReady(true)}
+            onProgress={handleYTProgress}
+            onDuration={(d: number) => setDuration(d)}
+            onEnded={() => pause()}
+            onError={(e: any) => console.error("YouTube Error:", e)}
+            config={{
+              youtube: {
+                playerVars: {
+                  origin: typeof window !== 'undefined' ? window.location.origin : '',
+                  playsinline: 1,
+                  controls: 0,
+                }
+              }
+            }}
+          />
+        </div>
       )}
 
       <NowPlayingOverlay
@@ -110,7 +169,7 @@ export function PlayerBar() {
         formatTime={formatTime}
       />
 
-      {/* Bottom PlayerBar */}
+      {/* Bottom PlayerBar - z-100 covers the YouTube iframe below */}
       <div className="fixed bottom-[56px] md:bottom-0 left-0 w-full h-[80px] bg-gradient-glass backdrop-blur-xl border-t-2 border-black flex items-center justify-between px-4 md:px-6 z-[100]">
 
         {/* Left: Album Art & Track Info */}
@@ -166,9 +225,7 @@ export function PlayerBar() {
               value={played}
               onChange={(e) => handleSeek(parseFloat(e.target.value))}
               className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #e5e7eb ${played * 100}%)`
-              }}
+              style={{ background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #e5e7eb ${played * 100}%)` }}
             />
             <span className="text-[10px] font-data text-gray-500 w-8">{formatTime(duration)}</span>
           </div>
@@ -190,9 +247,7 @@ export function PlayerBar() {
                 if (audioRef.current) audioRef.current.volume = vol;
               }}
               className="w-20 h-1 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, var(--color-pw-cyan-glow) ${volume * 100}%, #e5e7eb ${volume * 100}%)`
-              }}
+              style={{ background: `linear-gradient(to right, var(--color-pw-cyan-glow) ${volume * 100}%, #e5e7eb ${volume * 100}%)` }}
             />
           </div>
         </div>
