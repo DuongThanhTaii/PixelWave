@@ -95,16 +95,20 @@ export function PlayerBar() {
       >
       {/* Hidden Player */}
       {url && (
-        <div className="fixed -top-[2000px] -left-[2000px] w-1 h-1 opacity-0 pointer-events-none overflow-hidden">
+        <div className="fixed bottom-0 left-0 w-[300px] h-[300px] z-[-1] pointer-events-none">
 
           <ReactPlayer
             ref={playerRef}
             url={url}
             playing={isPlaying}
             volume={volume}
+            width="100%"
+            height="100%"
             onProgress={handleProgress as any}
             onDuration={setDuration as any}
             onEnded={() => pause()}
+            onError={(e) => console.error("ReactPlayer Error:", e)}
+            config={{ youtube: { playerVars: { origin: typeof window !== 'undefined' ? window.location.origin : '' } } }}
           />
         </div>
       )}
