@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createArtist, createFandom, createTrack, updateTrackLyrics, updateRole, createAlbum, fetchYoutubeLyrics, getAdminStats, getArtists, getAlbums, getTracks, getFandoms, updateAlbum, deleteAlbum, fetchYoutubeInfo, getAlbumById } from '../controllers/admin.controller';
+import { createArtist, createFandom, createTrack, updateTrackLyrics, updateRole, createAlbum, fetchYoutubeInfo, fetchYoutubeLyrics, getAdminStats, getArtists, getAlbums, getTracks, getFandoms } from '../controllers/admin.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { roleMiddleware } from '../middlewares/role.middleware';
 import { Role } from '@prisma/client';
@@ -17,9 +17,7 @@ router.get('/fandoms', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getFandoms)
 
 router.post('/artists', roleMiddleware([Role.ADMIN, Role.MODERATOR]), createArtist);
 router.post('/albums', roleMiddleware([Role.ADMIN, Role.MODERATOR]), createAlbum);
-router.get('/albums/:id', roleMiddleware([Role.ADMIN, Role.MODERATOR]), getAlbumById);
-router.put('/albums/:id', roleMiddleware([Role.ADMIN, Role.MODERATOR]), updateAlbum);
-router.delete('/albums/:id', roleMiddleware([Role.ADMIN, Role.MODERATOR]), deleteAlbum);
+
 router.post('/fandoms', roleMiddleware([Role.ADMIN, Role.MODERATOR]), createFandom);
 router.post('/tracks', roleMiddleware([Role.ADMIN, Role.MODERATOR], true), createTrack);
 router.put('/tracks/:id/lyrics', roleMiddleware([Role.ADMIN, Role.MODERATOR], true), updateTrackLyrics);
