@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { parseSRT, SrtLine } from '@/utils/srtParser';
+import { UploadCloud, Youtube } from 'lucide-react';
 
 export default function TracksAdmin() {
   const [status, setStatus] = useState('');
@@ -221,14 +222,16 @@ export default function TracksAdmin() {
         </div>
 
         {!uploadMode && (
-          <div className="flex flex-col md:flex-row gap-4 mt-6">
-            <button onClick={() => setUploadMode('manual')} className="flex-1 border-4 border-black p-6 bg-[var(--color-pw-vibrant-blue)] text-white hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all font-bold uppercase text-lg text-center">
-              📁 Manual Upload
-              <p className="text-xs font-normal mt-2 normal-case">Upload MP3/WAV files directly</p>
+          <div className="flex flex-col md:flex-row gap-6 mt-6">
+            <button onClick={() => setUploadMode('manual')} className="group flex-1 border-4 border-black p-8 bg-[var(--color-pw-vibrant-blue)] text-white hover:-translate-y-2 hover:-translate-x-2 shadow-[8px_8px_0_0_#000] hover:shadow-[12px_12px_0_0_#000] transition-all font-bold uppercase text-xl flex flex-col items-center justify-center gap-3">
+              <UploadCloud className="w-10 h-10 group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+              <span>Manual Upload</span>
+              <p className="text-sm font-normal normal-case text-[var(--color-pw-surface-100)] opacity-90">Upload MP3/WAV files directly</p>
             </button>
-            <button onClick={() => setUploadMode('youtube')} className="flex-1 border-4 border-black p-6 bg-[var(--color-pw-hot-pink)] text-white hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all font-bold uppercase text-lg text-center">
-              ▶️ YouTube Link
-              <p className="text-xs font-normal mt-2 normal-case">Stream via YouTube, auto-fetch info</p>
+            <button onClick={() => setUploadMode('youtube')} className="group flex-1 border-4 border-black p-8 bg-[#ff3366] text-white hover:-translate-y-2 hover:-translate-x-2 shadow-[8px_8px_0_0_#000] hover:shadow-[12px_12px_0_0_#000] transition-all font-bold uppercase text-xl flex flex-col items-center justify-center gap-3">
+              <Youtube className="w-10 h-10 group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+              <span>YouTube Link</span>
+              <p className="text-sm font-normal normal-case text-[var(--color-pw-surface-100)] opacity-90">Stream via YouTube, auto-fetch info</p>
             </button>
           </div>
         )}
