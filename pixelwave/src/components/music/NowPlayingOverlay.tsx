@@ -26,116 +26,118 @@ export function NowPlayingOverlay({
     <div className="fixed inset-0 z-[200] bg-[var(--color-pw-surface-100)] flex flex-col overflow-hidden">
 
       {/* Header */}
-      <div className="flex-shrink-0 h-14 flex items-center justify-between px-4 md:px-10 border-b-4 border-black bg-white">
+      <div className="flex-shrink-0 h-16 flex items-center justify-between px-4 md:px-8 border-b-4 border-black bg-white z-20">
         <button
           onClick={collapse}
-          className="w-10 h-10 flex items-center justify-center rounded-full border-4 border-black hover:bg-black hover:text-white transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-none border-4 border-black shadow-[4px_4px_0_0_#000] hover:bg-black hover:text-white transition-colors hover:shadow-none hover:translate-x-1 hover:translate-y-1"
         >
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className="w-6 h-6 stroke-[3]" />
         </button>
 
         <div className="flex flex-col items-center">
-          <span className="font-bold text-[9px] tracking-widest uppercase text-gray-400">Playing From</span>
-          <span className="font-display font-bold uppercase text-sm leading-none">{currentTrack.artist?.name}</span>
+          <span className="font-data font-bold text-[10px] tracking-widest uppercase text-gray-500">Now Playing</span>
+          <span className="font-display font-black uppercase text-base leading-none">{currentTrack.artist?.name}</span>
         </div>
 
         {/* Video/Cover toggle - only for YouTube tracks */}
-        {isYoutube && (
+        {isYoutube ? (
           <button
             onClick={onToggleVideo}
-            className="flex items-center gap-2 px-3 py-2 rounded-full border-2 border-black font-bold text-xs uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-none border-4 border-black shadow-[4px_4px_0_0_#000] bg-[var(--color-pw-cyan-glow)] font-black text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-all hover:shadow-none hover:translate-x-1 hover:translate-y-1"
             title={showVideo ? "Show Cover Art" : "Show Video"}
           >
             {showVideo ? (
-              <><Image className="w-4 h-4" /><span className="hidden sm:inline">Cover</span></>
+              <><Image className="w-4 h-4 stroke-[3]" /><span className="hidden sm:inline">Cover</span></>
             ) : (
-              <><Video className="w-4 h-4" /><span className="hidden sm:inline">Video</span></>
+              <><Video className="w-4 h-4 stroke-[3]" /><span className="hidden sm:inline">Video</span></>
             )}
           </button>
+        ) : (
+          <div className="w-20" /> // Spacer
         )}
-
-        {/* Spacer when no toggle */}
-        {!isYoutube && <div className="w-10 h-10" />}
       </div>
 
       {/* Body */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
 
         {/* Left: Controls Panel */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center overflow-y-auto p-6 md:p-8 lg:border-r-4 border-black bg-[var(--color-pw-surface-200)] relative">
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center overflow-hidden p-6 md:p-8 lg:border-r-4 border-black bg-[var(--color-pw-surface-200)] relative">
           {/* BG blur */}
           {currentTrack.coverArtUrl && !showVideo && (
             <div
-              className="absolute inset-0 opacity-10 blur-2xl scale-150 pointer-events-none"
+              className="absolute inset-0 opacity-[0.15] blur-3xl scale-150 pointer-events-none"
               style={{ backgroundImage: `url(${currentTrack.coverArtUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
           )}
 
           {/* Art area: YouTube video OR album cover */}
-          <div className="w-44 h-44 sm:w-56 sm:h-56 lg:w-64 lg:h-64 flex-shrink-0 border-4 border-black shadow-[10px_10px_0_0_#000] bg-black overflow-hidden mb-5 relative z-10">
+          <div className="w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 flex-shrink-0 border-4 border-black shadow-[12px_12px_0_0_#000] bg-black overflow-hidden mb-8 relative z-10 group">
             {showVideo && isYoutube ? (
               /* Video mode: placeholder - actual iframe is moved here by PlayerBar via absolute positioning */
               <div id="yt-placeholder" className="w-full h-full bg-black flex items-center justify-center relative">
-                {/* The actual YT iframe from PlayerBar is positioned fixed exactly over this div */}
-                <span className="text-white/30 text-xs font-bold uppercase tracking-widest">Video</span>
+                <span className="text-[var(--color-pw-hot-pink)] text-sm font-data font-bold uppercase tracking-widest animate-pulse">Video Feed Active</span>
               </div>
             ) : currentTrack.coverArtUrl ? (
-              <img src={currentTrack.coverArtUrl} alt={currentTrack.title} className="w-full h-full object-cover" />
+              <img src={currentTrack.coverArtUrl} alt={currentTrack.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             ) : (
               <div className="w-full h-full bg-gradient-to-tr from-[var(--color-pw-deep-purple)] to-[var(--color-pw-cyan-glow)]" />
             )}
           </div>
 
           {/* Title & Artist */}
-          <div className="w-full max-w-xs text-center mb-4 relative z-10">
-            <h2 className="font-display font-black text-xl sm:text-2xl uppercase tracking-tight mb-1 line-clamp-2">{currentTrack.title}</h2>
-            <p className="font-body font-bold text-sm text-[var(--color-pw-hot-pink)] truncate">{currentTrack.artist?.name}</p>
+          <div className="w-full max-w-sm text-center mb-6 relative z-10">
+            <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl uppercase tracking-tight mb-2 line-clamp-2 text-black leading-tight">
+              {currentTrack.title}
+            </h2>
+            <p className="font-data font-bold text-lg sm:text-xl text-[var(--color-pw-hot-pink)] uppercase tracking-widest truncate">
+              {currentTrack.artist?.name}
+            </p>
           </div>
 
           {/* Progress */}
-          <div className="w-full max-w-xs mb-4 relative z-10">
+          <div className="w-full max-w-sm mb-8 relative z-10 group">
             <input
               type="range" min={0} max={0.999999} step="any" value={played}
               onChange={(e) => onSeek(parseFloat(e.target.value))}
-              className="w-full h-3 rounded-full appearance-none cursor-pointer mb-1"
-              style={{ background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #e5e7eb ${played * 100}%)` }}
+              className="w-full h-4 rounded-none appearance-none cursor-pointer mb-2 border-2 border-black bg-white"
+              style={{ background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #ffffff ${played * 100}%)` }}
             />
-            <div className="flex justify-between font-data font-bold text-xs text-black">
+            <div className="flex justify-between font-data font-bold text-sm text-black">
               <span>{formatTime(playedSeconds)}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-7 mb-5 relative z-10">
-            <button className="text-black hover:scale-110 transition-transform">
-              <SkipBack className="w-6 h-6 fill-current" />
+          <div className="flex items-center gap-8 mb-8 relative z-10">
+            <button className="w-12 h-12 flex items-center justify-center border-4 border-black bg-white shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">
+              <SkipBack className="w-6 h-6 text-black fill-current" />
             </button>
             <button
               onClick={() => isPlaying ? pause() : play(currentTrack)}
-              className="w-16 h-16 rounded-full bg-[var(--color-pw-hot-pink)] border-4 border-black flex items-center justify-center shadow-[5px_5px_0_0_#000] hover:shadow-[7px_7px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200"
+              className="w-20 h-20 rounded-none bg-[var(--color-pw-neon-lime)] border-4 border-black flex items-center justify-center shadow-[8px_8px_0_0_#000] hover:shadow-[10px_10px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-2 active:translate-y-2 transition-all duration-200"
             >
-              {isPlaying ? <Pause className="w-7 h-7 text-white fill-white" /> : <Play className="w-7 h-7 text-white fill-white ml-1" />}
+              {isPlaying ? <Pause className="w-10 h-10 text-black fill-black" /> : <Play className="w-10 h-10 text-black fill-black ml-2" />}
             </button>
-            <button className="text-black hover:scale-110 transition-transform">
-              <SkipForward className="w-6 h-6 fill-current" />
+            <button className="w-12 h-12 flex items-center justify-center border-4 border-black bg-white shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">
+              <SkipForward className="w-6 h-6 text-black fill-current" />
             </button>
           </div>
 
           {/* Volume */}
-          <div className="w-full max-w-xs flex items-center gap-3 relative z-10">
-            <Volume2 className="w-5 h-5 text-black flex-shrink-0" />
+          <div className="w-full max-w-sm flex items-center gap-4 relative z-10 p-3 border-4 border-black bg-white shadow-[4px_4px_0_0_#000]">
+            <Volume2 className="w-6 h-6 text-black flex-shrink-0" />
             <input
               type="range" min={0} max={1} step={0.01} value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
-              style={{ background: `linear-gradient(to right, var(--color-pw-neon-lime) ${volume * 100}%, #e5e7eb ${volume * 100}%)` }}
+              className="flex-1 h-3 rounded-none appearance-none cursor-pointer border-2 border-black"
+              style={{ background: `linear-gradient(to right, var(--color-pw-cyan-glow) ${volume * 100}%, #ffffff ${volume * 100}%)` }}
             />
           </div>
         </div>
 
         {/* Right: Lyrics */}
-        <div className="w-full lg:w-1/2 bg-black overflow-y-auto" style={{ minHeight: '200px' }}>
+        <div className="w-full lg:w-1/2 bg-black overflow-y-auto" style={{ minHeight: '300px' }}>
           <LyricsViewer lyricsRaw={currentTrack.lyrics || ""} currentTime={playedSeconds} />
         </div>
       </div>
