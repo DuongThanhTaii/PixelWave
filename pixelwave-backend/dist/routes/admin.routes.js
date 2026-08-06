@@ -18,6 +18,7 @@ router.post('/albums', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMI
 router.post('/fandoms', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.createFandom);
 router.post('/tracks', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR], true), admin_controller_1.createTrack);
 router.put('/tracks/:id/lyrics', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR], true), admin_controller_1.updateTrackLyrics);
+router.post('/tracks/youtube-info', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.fetchYoutubeInfo);
 router.post('/tracks/youtube-lyrics', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN, client_1.Role.MODERATOR]), admin_controller_1.fetchYoutubeLyrics);
 router.put('/users/:userId/role', (0, role_middleware_1.roleMiddleware)([client_1.Role.ADMIN]), admin_controller_1.updateRole);
 exports.default = router;

@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
+import { ChevronDown, Play, Pause, SkipBack, SkipForward, Volume2, Image, Video } from "lucide-react";
 import { LyricsViewer } from "./LyricsViewer";
 import { usePlayerStore } from "@/stores/playerStore";
 
@@ -9,10 +9,14 @@ interface NowPlayingOverlayProps {
   duration: number;
   onSeek: (value: number) => void;
   formatTime: (sec: number) => string;
+  isYoutube?: boolean;
+  showVideo?: boolean;
+  onToggleVideo?: () => void;
 }
 
 export function NowPlayingOverlay({
-  played, playedSeconds, duration, onSeek, formatTime
+  played, playedSeconds, duration, onSeek, formatTime,
+  isYoutube, showVideo, onToggleVideo
 }: NowPlayingOverlayProps) {
   const { currentTrack, isPlaying, play, pause, volume, setVolume, isExpanded, collapse } = usePlayerStore();
 
@@ -29,29 +33,53 @@ export function NowPlayingOverlay({
         >
           <ChevronDown className="w-5 h-5" />
         </button>
+
         <div className="flex flex-col items-center">
           <span className="font-bold text-[9px] tracking-widest uppercase text-gray-400">Playing From</span>
           <span className="font-display font-bold uppercase text-sm leading-none">{currentTrack.artist?.name}</span>
         </div>
-        <div className="w-10 h-10" />
+
+        {/* Video/Cover toggle - only for YouTube tracks */}
+        {isYoutube && (
+          <button
+            onClick={onToggleVideo}
+            className="flex items-center gap-2 px-3 py-2 rounded-full border-2 border-black font-bold text-xs uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+            title={showVideo ? "Show Cover Art" : "Show Video"}
+          >
+            {showVideo ? (
+              <><Image className="w-4 h-4" /><span className="hidden sm:inline">Cover</span></>
+            ) : (
+              <><Video className="w-4 h-4" /><span className="hidden sm:inline">Video</span></>
+            )}
+          </button>
+        )}
+
+        {/* Spacer when no toggle */}
+        {!isYoutube && <div className="w-10 h-10" />}
       </div>
 
       {/* Body */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
 
-        {/* Left: Controls */}
+        {/* Left: Controls Panel */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center overflow-y-auto p-6 md:p-8 lg:border-r-4 border-black bg-[var(--color-pw-surface-200)] relative">
           {/* BG blur */}
-          {currentTrack.coverArtUrl && (
+          {currentTrack.coverArtUrl && !showVideo && (
             <div
               className="absolute inset-0 opacity-10 blur-2xl scale-150 pointer-events-none"
               style={{ backgroundImage: `url(${currentTrack.coverArtUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
           )}
 
-          {/* Album Art */}
-          <div className="w-44 h-44 sm:w-56 sm:h-56 lg:w-64 lg:h-64 flex-shrink-0 border-4 border-black shadow-[10px_10px_0_0_#000] bg-white overflow-hidden mb-5 relative z-10">
-            {currentTrack.coverArtUrl ? (
+          {/* Art area: YouTube video OR album cover */}
+          <div className="w-44 h-44 sm:w-56 sm:h-56 lg:w-64 lg:h-64 flex-shrink-0 border-4 border-black shadow-[10px_10px_0_0_#000] bg-black overflow-hidden mb-5 relative z-10">
+            {showVideo && isYoutube ? (
+              /* Video mode: placeholder - actual iframe is moved here by PlayerBar via absolute positioning */
+              <div id="yt-placeholder" className="w-full h-full bg-black flex items-center justify-center relative">
+                {/* The actual YT iframe from PlayerBar is positioned fixed exactly over this div */}
+                <span className="text-white/30 text-xs font-bold uppercase tracking-widest">Video</span>
+              </div>
+            ) : currentTrack.coverArtUrl ? (
               <img src={currentTrack.coverArtUrl} alt={currentTrack.title} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-gradient-to-tr from-[var(--color-pw-deep-purple)] to-[var(--color-pw-cyan-glow)]" />
@@ -67,16 +95,10 @@ export function NowPlayingOverlay({
           {/* Progress */}
           <div className="w-full max-w-xs mb-4 relative z-10">
             <input
-              type="range"
-              min={0}
-              max={0.999999}
-              step="any"
-              value={played}
+              type="range" min={0} max={0.999999} step="any" value={played}
               onChange={(e) => onSeek(parseFloat(e.target.value))}
               className="w-full h-3 rounded-full appearance-none cursor-pointer mb-1"
-              style={{
-                background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #e5e7eb ${played * 100}%)`
-              }}
+              style={{ background: `linear-gradient(to right, var(--color-pw-hot-pink) ${played * 100}%, #e5e7eb ${played * 100}%)` }}
             />
             <div className="flex justify-between font-data font-bold text-xs text-black">
               <span>{formatTime(playedSeconds)}</span>
@@ -93,11 +115,7 @@ export function NowPlayingOverlay({
               onClick={() => isPlaying ? pause() : play(currentTrack)}
               className="w-16 h-16 rounded-full bg-[var(--color-pw-hot-pink)] border-4 border-black flex items-center justify-center shadow-[5px_5px_0_0_#000] hover:shadow-[7px_7px_0_0_#000] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200"
             >
-              {isPlaying ? (
-                <Pause className="w-7 h-7 text-white fill-white" />
-              ) : (
-                <Play className="w-7 h-7 text-white fill-white ml-1" />
-              )}
+              {isPlaying ? <Pause className="w-7 h-7 text-white fill-white" /> : <Play className="w-7 h-7 text-white fill-white ml-1" />}
             </button>
             <button className="text-black hover:scale-110 transition-transform">
               <SkipForward className="w-6 h-6 fill-current" />
@@ -108,11 +126,7 @@ export function NowPlayingOverlay({
           <div className="w-full max-w-xs flex items-center gap-3 relative z-10">
             <Volume2 className="w-5 h-5 text-black flex-shrink-0" />
             <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
+              type="range" min={0} max={1} step={0.01} value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
               style={{ background: `linear-gradient(to right, var(--color-pw-neon-lime) ${volume * 100}%, #e5e7eb ${volume * 100}%)` }}
@@ -122,10 +136,7 @@ export function NowPlayingOverlay({
 
         {/* Right: Lyrics */}
         <div className="w-full lg:w-1/2 bg-black overflow-y-auto" style={{ minHeight: '200px' }}>
-          <LyricsViewer
-            lyricsRaw={currentTrack.lyrics || ""}
-            currentTime={playedSeconds}
-          />
+          <LyricsViewer lyricsRaw={currentTrack.lyrics || ""} currentTime={playedSeconds} />
         </div>
       </div>
     </div>

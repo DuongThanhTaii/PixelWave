@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const public_controller_1 = require("../controllers/public.controller");
+const router = (0, express_1.Router)();
+router.get('/albums', public_controller_1.getPublicAlbums);
+router.get('/albums/:id', public_controller_1.getPublicAlbumById);
+router.get('/artists', public_controller_1.getPublicArtists);
+router.get('/artists/:id', public_controller_1.getPublicArtistById);
+router.get('/tracks/:id', public_controller_1.getPublicTrackById);
+router.get('/search', public_controller_1.globalSearch);
+exports.default = router;

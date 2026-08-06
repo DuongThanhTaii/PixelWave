@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFandoms = exports.getTracks = exports.getAlbums = exports.getArtists = exports.getAdminStats = exports.fetchYoutubeLyrics = exports.createAlbum = exports.updateRole = exports.updateTrackLyrics = exports.createTrack = exports.createFandom = exports.createArtist = void 0;
+exports.getFandoms = exports.getTracks = exports.getAlbums = exports.getArtists = exports.getAdminStats = exports.fetchYoutubeLyrics = exports.fetchYoutubeInfo = exports.createAlbum = exports.updateRole = exports.updateTrackLyrics = exports.createTrack = exports.createFandom = exports.createArtist = void 0;
 const prisma_1 = require("../lib/prisma");
 const youtube_captions_scraper_1 = require("youtube-captions-scraper");
+const axios_1 = __importDefault(require("axios"));
 const createArtist = async (req, res) => {
     try {
         const { name, slug, bio, avatarUrl } = req.body;
@@ -145,6 +149,44 @@ const createAlbum = async (req, res) => {
     }
 };
 exports.createAlbum = createAlbum;
+const fetchYoutubeInfo = async (req, res) => {
+    try {
+        const { videoId } = req.body;
+        if (!videoId) {
+            res.status(400).json({ success: false, message: 'videoId is required' });
+            return;
+        }
+        const noembedRes = await axios_1.default.get(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+        const noembedData = noembedRes.data;
+        let durationMs = 0;
+        try {
+            const ytRes = await axios_1.default.get(`https://www.youtube.com/watch?v=${videoId}`, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+            });
+            const ytHtml = ytRes.data;
+            const durationMatch = ytHtml.match(/"lengthSeconds":"(\d+)"/);
+            if (durationMatch) {
+                durationMs = parseInt(durationMatch[1]) * 1000;
+            }
+        }
+        catch (e) {
+            console.warn('Could not fetch duration from youtube html:', e.message);
+        }
+        res.status(200).json({
+            success: true,
+            data: {
+                title: noembedData.title || '',
+                thumbnail_url: noembedData.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                durationMs
+            }
+        });
+    }
+    catch (error) {
+        console.error('fetchYoutubeInfo error:', error);
+        res.status(500).json({ success: false, message: error.message || 'Failed to fetch youtube info' });
+    }
+};
+exports.fetchYoutubeInfo = fetchYoutubeInfo;
 const fetchYoutubeLyrics = async (req, res) => {
     try {
         const { videoId } = req.body;

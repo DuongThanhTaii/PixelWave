@@ -9,37 +9,40 @@ import { useUserStore } from "@/stores/userStore";
 import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 
 export function PlayerBar() {
-  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand } = usePlayerStore();
+  const { currentTrack, isPlaying, play, pause, volume, setVolume, expand, isExpanded } = usePlayerStore();
   const { isLoggedIn } = useUserStore();
 
   const [played, setPlayed] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoRect, setVideoRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
 
-  // For native audio (audioUrl tracks)
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const progressInterval = useRef<NodeJS.Timeout | null>(null);
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastSaved = useRef(0);
+  const ytWrapperRef = useRef<HTMLDivElement>(null);
 
   const isYoutube = !!(currentTrack?.youtubeVideoId && !currentTrack?.audioUrl);
   const isAudio = !!currentTrack?.audioUrl;
 
-  // YouTube player hook
+  const handleProgress = useCallback((p: number, ps: number) => {
+    setPlayed(p);
+    setPlayedSeconds(ps);
+    if (isLoggedIn && currentTrack && ps - lastSaved.current >= 5) {
+      lastSaved.current = ps;
+      fetchApi('/sessions/progress', {
+        method: 'POST',
+        body: JSON.stringify({ trackId: currentTrack.id, positionMs: ps * 1000 })
+      }).catch(console.error);
+    }
+  }, [isLoggedIn, currentTrack?.id]);
+
   const { containerRef: ytContainerRef, seekTo: ytSeekTo } = useYouTubePlayer({
     videoId: isYoutube ? currentTrack?.youtubeVideoId : null,
     isPlaying,
     volume,
-    onProgress: useCallback((p: number, ps: number) => {
-      setPlayed(p);
-      setPlayedSeconds(ps);
-      if (isLoggedIn && currentTrack && ps - lastSaved.current >= 5) {
-        lastSaved.current = ps;
-        fetchApi('/sessions/progress', {
-          method: 'POST',
-          body: JSON.stringify({ trackId: currentTrack.id, positionMs: ps * 1000 })
-        }).catch(console.error);
-      }
-    }, [isLoggedIn, currentTrack?.id]),
+    onProgress: handleProgress,
     onDuration: setDuration,
     onEnded: pause,
   });
@@ -50,16 +53,38 @@ export function PlayerBar() {
     setPlayedSeconds(0);
     setDuration(0);
     lastSaved.current = 0;
+    setShowVideo(false);
   }, [currentTrack?.id]);
 
-  // Native audio play/pause sync
+  // Sync YouTube IFrame position precisely over the placeholder using rAF
+  useEffect(() => {
+    if (isExpanded && showVideo) {
+      let animationFrameId: number;
+      const updateRect = () => {
+        const el = document.getElementById('yt-placeholder');
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          setVideoRect({
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          });
+        }
+        animationFrameId = requestAnimationFrame(updateRect);
+      };
+      animationFrameId = requestAnimationFrame(updateRect);
+      return () => cancelAnimationFrame(animationFrameId);
+    } else {
+      setVideoRect(null);
+    }
+  }, [isExpanded, showVideo]);
+
+  // Native audio sync
   useEffect(() => {
     if (!isAudio || !audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.play().catch(console.error);
-    } else {
-      audioRef.current.pause();
-    }
+    if (isPlaying) audioRef.current.play().catch(console.error);
+    else audioRef.current.pause();
   }, [isPlaying, isAudio, currentTrack?.id]);
 
   // Native audio progress
@@ -74,17 +99,10 @@ export function PlayerBar() {
         setPlayedSeconds(cur);
         setDuration(dur);
         if (dur > 0) setPlayed(cur / dur);
-        if (isLoggedIn && currentTrack && cur - lastSaved.current >= 5) {
-          lastSaved.current = cur;
-          fetchApi('/sessions/progress', {
-            method: 'POST',
-            body: JSON.stringify({ trackId: currentTrack.id, positionMs: cur * 1000 })
-          }).catch(console.error);
-        }
       }, 500);
     }
     return () => { if (progressInterval.current) clearInterval(progressInterval.current); };
-  }, [isPlaying, isAudio, currentTrack?.id, isLoggedIn]);
+  }, [isPlaying, isAudio, currentTrack?.id]);
 
   const handleSeek = useCallback((value: number) => {
     if (isYoutube) {
@@ -104,11 +122,33 @@ export function PlayerBar() {
     return `${min}:${sec < 10 ? "0" : ""}${sec}`;
   };
 
+  // Determine iframe style dynamically
+  const ytStyle: React.CSSProperties = (isExpanded && showVideo && videoRect)
+    ? {
+        position: 'fixed',
+        top: videoRect.top,
+        left: videoRect.left,
+        width: videoRect.width,
+        height: videoRect.height,
+        zIndex: 250, // above the NowPlayingOverlay
+        pointerEvents: 'auto',
+      }
+    : {
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        width: '1px',  // Hide completely when not playing video mode
+        height: '1px',
+        opacity: 0,
+        zIndex: -1,
+        pointerEvents: 'none',
+      };
+
   if (!currentTrack) return null;
 
   return (
     <>
-      {/* Native HTML5 Audio - for MP3/audioUrl tracks */}
+      {/* Native audio for MP3 tracks */}
       {isAudio && currentTrack.audioUrl && (
         <audio
           ref={audioRef}
@@ -120,22 +160,11 @@ export function PlayerBar() {
         />
       )}
 
-      {/* YouTube IFrame API container - visible to browser (required for autoplay policy) */}
-      {/* Hidden visually behind PlayerBar using z-index */}
+      {/* YouTube IFrame container - never unmounted, CSS handles positioning / hiding */}
       {isYoutube && (
-        <div
-          ref={ytContainerRef}
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            width: "320px",
-            height: "180px",
-            zIndex: 99,
-            pointerEvents: "none",
-            overflow: "hidden",
-          }}
-        />
+        <div ref={ytWrapperRef} style={ytStyle}>
+          <div ref={ytContainerRef} style={{ width: '100%', height: '100%' }} />
+        </div>
       )}
 
       <NowPlayingOverlay
@@ -144,11 +173,13 @@ export function PlayerBar() {
         duration={duration}
         onSeek={handleSeek}
         formatTime={formatTime}
+        isYoutube={isYoutube}
+        showVideo={showVideo}
+        onToggleVideo={() => setShowVideo((v) => !v)}
       />
 
-      {/* PlayerBar - z-100, covers YouTube iframe below */}
+      {/* PlayerBar */}
       <div className="fixed bottom-[56px] md:bottom-0 left-0 w-full h-[80px] bg-gradient-glass backdrop-blur-xl border-t-2 border-black flex items-center justify-between px-4 md:px-6 z-[100]">
-
         {/* Left: Track Info */}
         <div className="flex items-center gap-3 w-1/3 min-w-0 cursor-pointer group" onClick={expand}>
           <div className="w-12 h-12 bg-[var(--color-pw-surface-300)] rounded-lg border-2 border-black shadow-[3px_3px_0px_0px_#000] overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
@@ -177,11 +208,7 @@ export function PlayerBar() {
               onClick={() => isPlaying ? pause() : play(currentTrack)}
               className="w-10 h-10 rounded-full bg-[var(--color-pw-hot-pink)] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000] hover:shadow-[5px_5px_0px_0px_#000] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all"
             >
-              {isPlaying ? (
-                <Pause className="w-4 h-4 text-white fill-white" />
-              ) : (
-                <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-              )}
+              {isPlaying ? <Pause className="w-4 h-4 text-white fill-white" /> : <Play className="w-4 h-4 text-white fill-white ml-0.5" />}
             </button>
             <button className="hover:scale-110 transition-transform text-[var(--color-on-background)]">
               <SkipForward className="w-4 h-4 fill-current" />

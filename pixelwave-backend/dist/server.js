@@ -31,6 +31,7 @@ const track_routes_1 = __importDefault(require("./routes/track.routes"));
 const session_routes_1 = __importDefault(require("./routes/session.routes"));
 const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
+const public_routes_1 = __importDefault(require("./routes/public.routes"));
 app.use((0, cors_1.default)({
     origin: process.env.FRONTEND_URL || '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -45,6 +46,7 @@ app.use('/api/v1/tracks', track_routes_1.default);
 app.use('/api/v1/sessions', session_routes_1.default);
 app.use('/api/v1/upload', upload_routes_1.default);
 app.use('/api/v1/admin', admin_routes_1.default);
+app.use('/api/v1/public', public_routes_1.default);
 app.get('/api/v1/health', (req, res) => {
     res.json({ status: 'ok', version: '1.0.0' });
 });
