@@ -1,15 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { PlayerBar } from "./PlayerBar";
 import { BottomNav } from "./BottomNav";
 
 import { usePathname } from "next/navigation";
+import { useUserStore } from "@/stores/userStore";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname === "/login";
+  
+  const { isLoggedIn, role, fetchProfile } = useUserStore();
+
+  useEffect(() => {
+    if (isLoggedIn && !role) {
+      fetchProfile();
+    }
+  }, [isLoggedIn, role, fetchProfile]);
 
   if (isAuthPage) {
     return (

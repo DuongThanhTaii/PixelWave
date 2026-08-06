@@ -18,19 +18,47 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // Verify token
-    const ticket = await googleClient.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
+    // Try to verify as ID token first
+    let email, googleId, name, picture;
 
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      res.status(400).json({ success: false, message: 'Invalid Google token' });
-      return;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      const payload = ticket.getPayload();
+      if (payload) {
+        email = payload.email;
+        googleId = payload.sub;
+        name = payload.name;
+        picture = payload.picture;
+      }
+    } catch (error) {
+      // If it fails, try to use it as an access token to fetch user info
+      try {
+        const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          email = data.email;
+          googleId = data.sub;
+          name = data.name;
+          picture = data.picture;
+        } else {
+          res.status(400).json({ success: false, message: 'Invalid Google token' });
+          return;
+        }
+      } catch (fetchError) {
+        res.status(400).json({ success: false, message: 'Invalid Google token' });
+        return;
+      }
     }
 
-    const { email, sub: googleId, name, picture } = payload;
+    if (!email || !googleId) {
+      res.status(400).json({ success: false, message: 'Could not extract user info from Google' });
+      return;
+    }
 
     // Find user by googleId or email
     let user = await prisma.user.findFirst({
