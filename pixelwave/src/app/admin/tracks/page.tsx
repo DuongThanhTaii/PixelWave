@@ -82,18 +82,18 @@ export default function TracksAdmin() {
     setIsFetchingYoutubeInfo(true);
     setStatus('Fetching YouTube info...');
     try {
-      // Using noembed to avoid direct CORS block on some environments, or fallback to manual
-      const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-      const data = await res.json();
+      const data: any = await fetchApi('/admin/tracks/youtube-info', {
+        method: 'POST',
+        body: JSON.stringify({ videoId })
+      });
       
-      if (data.error) {
-        setStatus(`Error fetching info: ${data.error}`);
-      } else {
+      if (data) {
         setTrackData(prev => ({ 
           ...prev, 
           title: data.title, 
           slug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
-          youtubeVideoId: videoId 
+          youtubeVideoId: videoId,
+          durationMs: data.durationMs || 0
         }));
         setTrackCoverUrl(data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`);
         setStatus('YouTube info fetched successfully!');

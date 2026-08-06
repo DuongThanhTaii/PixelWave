@@ -4,7 +4,6 @@ import React from "react";
 import { Sidebar } from "./Sidebar";
 import { PlayerBar } from "./PlayerBar";
 import { BottomNav } from "./BottomNav";
-import { CustomCursor } from "../overlays/CustomCursor";
 
 import { usePathname } from "next/navigation";
 
@@ -15,7 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (isAuthPage) {
     return (
       <div className="flex h-screen overflow-hidden bg-[var(--color-surface-100)] text-[var(--color-on-background)] font-sans">
-        <CustomCursor />
+        {/* Removed CustomCursor */}
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
@@ -25,7 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--color-surface-100)] text-[var(--color-on-background)] font-sans">
-      <CustomCursor />
+      {/* Removed CustomCursor */}
       
       {/* Desktop Sidebar */}
       <div className="hidden md:block shrink-0">

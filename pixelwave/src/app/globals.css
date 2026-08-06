@@ -126,10 +126,13 @@ body {
   font-family: var(--font-body);
 }
 
-/* Hide default cursor on desktop devices with fine pointer */
+/* Custom Y2K Cursor for desktop devices with fine pointer */
 @media (pointer: fine) {
-  * {
-    cursor: none !important;
+  html, body, * {
+    cursor: url('/y2k-cursor.svg') 8 0, auto !important;
+  }
+  a, button, input, select, textarea, [role="button"] {
+    cursor: url('/y2k-cursor.svg') 8 0, pointer !important;
   }
 }
 

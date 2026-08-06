@@ -153,6 +153,36 @@ export const createAlbum = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+export const fetchYoutubeInfo = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { videoId } = req.body;
+    if (!videoId) {
+      res.status(400).json({ success: false, message: 'videoId is required' });
+      return;
+    }
+
+    const noembedRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+    const noembedData = await noembedRes.json();
+
+    const ytRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+    const ytHtml = await ytRes.text();
+    const durationMatch = ytHtml.match(/"lengthSeconds":"(\d+)"/);
+    const durationMs = durationMatch ? parseInt(durationMatch[1]) * 1000 : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        title: noembedData.title || '',
+        thumbnail_url: noembedData.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        durationMs
+      }
+    });
+  } catch (error: any) {
+    console.error('fetchYoutubeInfo error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch youtube info' });
+  }
+};
+
 export const fetchYoutubeLyrics = async (req: Request, res: Response): Promise<void> => {
   try {
     const { videoId } = req.body;
