@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { parseSRT, SrtLine } from '@/utils/srtParser';
 
 export default function TracksAdmin() {
   const [status, setStatus] = useState('');
   const [isFetchingLyrics, setIsFetchingLyrics] = useState(false);
+  const [showLyricsPreview, setShowLyricsPreview] = useState(false);
 
   const [uploadMode, setUploadMode] = useState<'manual' | 'youtube' | null>(null);
   const [youtubeInput, setYoutubeInput] = useState('');
@@ -296,20 +298,47 @@ export default function TracksAdmin() {
             
             <div className="border-2 border-dashed border-black p-4 bg-gray-50 flex flex-col gap-2">
               <div className="flex justify-between items-center">
-                <span className="font-bold">Lyrics (.lrc format)</span>
+                <span className="font-bold">Lyrics (.srt format)</span>
                 <div className="flex gap-2">
+                  <button type="button" onClick={() => setShowLyricsPreview(!showLyricsPreview)} className="bg-white border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+                    {showLyricsPreview ? 'Hide Preview' : 'Preview Lyrics'}
+                  </button>
                   {uploadMode === 'youtube' && (
                     <button type="button" onClick={handleFetchYoutubeLyrics} disabled={isFetchingLyrics} className="bg-gray-200 border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none disabled:opacity-50">
                       {isFetchingLyrics ? 'Fetching...' : 'Fetch from YouTube'}
                     </button>
                   )}
                   <label className="bg-[var(--color-pw-vibrant-blue)] text-white border-2 border-black px-2 py-1 text-xs font-bold shadow-[2px_2px_0_0_#000] cursor-pointer active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
-                    Upload .lrc File
-                    <input type="file" accept=".lrc,.txt" className="hidden" onChange={handleLrcFileUpload} />
+                    Upload .srt File
+                    <input type="file" accept=".srt,.txt" className="hidden" onChange={handleLrcFileUpload} />
                   </label>
                 </div>
               </div>
-              <textarea placeholder="[00:15.30] Example lyrics line..." rows={6} className="border-2 border-black p-2 outline-none focus:bg-gray-100 w-full font-mono text-xs" value={trackData.lyrics} onChange={e => setTrackData({...trackData, lyrics: e.target.value})} />
+              <textarea placeholder="1&#10;00:00:28,606 --> 00:00:34,706&#10;thôi, cứ như vậy đi, đã đến lúc dừng lại..." rows={6} className="border-2 border-black p-2 outline-none focus:bg-gray-100 w-full font-mono text-xs" value={trackData.lyrics} onChange={e => setTrackData({...trackData, lyrics: e.target.value})} />
+              
+              {showLyricsPreview && (
+                <div className="mt-2 border-2 border-black bg-white shadow-[4px_4px_0_0_#000] p-4 max-h-64 overflow-y-auto">
+                  <h4 className="font-bold text-lg mb-2 uppercase border-b-2 border-black pb-2">Lyrics Preview</h4>
+                  {trackData.lyrics ? (
+                    <div className="flex flex-col gap-2">
+                      {parseSRT(trackData.lyrics).map((line: SrtLine, i: number) => (
+                        <div key={i} className="flex gap-4 border-b border-gray-200 pb-1 last:border-b-0">
+                          <div className="text-gray-500 font-mono text-[10px] w-24 shrink-0 mt-0.5 flex flex-col">
+                            <span>{new Date(line.startTime).toISOString().substr(11, 12)}</span>
+                            <span>{new Date(line.endTime).toISOString().substr(11, 12)}</span>
+                          </div>
+                          <div className="font-bold text-sm leading-tight">{line.text}</div>
+                        </div>
+                      ))}
+                      {parseSRT(trackData.lyrics).length === 0 && (
+                        <p className="text-red-500 font-bold">Invalid SRT format or no lyrics found.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 font-bold italic">No lyrics provided yet.</p>
+                  )}
+                </div>
+              )}
             </div>
             
             <button type="submit" className="bg-[var(--color-pw-hot-pink)] text-white border-2 border-black p-3 font-bold uppercase shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none mt-2 text-lg">Submit Track</button>

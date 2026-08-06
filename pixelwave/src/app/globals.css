@@ -126,6 +126,13 @@ body {
   font-family: var(--font-body);
 }
 
+/* Hide default cursor on desktop devices with fine pointer */
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
 .scanline {
   position: fixed;
   top: 0;
