@@ -5,6 +5,8 @@ import { FandomCard } from "@/components/fandom/FandomCard";
 import { SeasonWarBanner } from "@/components/gamification/SeasonWarBanner";
 import { CanvasHighlights } from "@/components/canvas/CanvasHighlights";
 import { TrackCard } from "@/components/music/TrackCard";
+import { AlbumCard } from "@/components/music/AlbumCard";
+import { ArtistCard } from "@/components/music/ArtistCard";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { fetchApi } from "@/lib/api";
@@ -17,15 +19,20 @@ const MOCK_HIGHLIGHTS = [
 
 export default function DiscoverPage() {
   const [tracks, setTracks] = useState<any[]>([]);
-  const [fandoms, setFandoms] = useState<any[]>([]);
+  const [albums, setAlbums] = useState<any[]>([]);
+  const [artists, setArtists] = useState<any[]>([]);
 
   useEffect(() => {
     fetchApi('/tracks')
-      .then((res: any) => setTracks(res.data))
+      .then((res: any) => setTracks(res))
       .catch(console.error);
     
-    fetchApi('/fandoms')
-      .then((res: any) => setFandoms(res.data))
+    fetchApi('/public/albums')
+      .then((res: any) => setAlbums(res))
+      .catch(console.error);
+
+    fetchApi('/public/artists')
+      .then((res: any) => setArtists(res))
       .catch(console.error);
   }, []);
 
@@ -36,26 +43,49 @@ export default function DiscoverPage() {
         <HeroCarousel />
       </section>
 
-      {/* Render top fandom if any exist */}
-      {fandoms && fandoms.length > 0 && (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {fandoms.slice(0, 3).map((fandom) => (
-             <FandomCard 
-               key={fandom.id}
-               id={fandom.id}
-               name={fandom.name}
-               members={fandom._count?.members || 0}
-               territorySize={fandom.territorySize || 0}
-               color={fandom.color || 'var(--color-pw-cyan-glow)'}
-             />
+      {/* Top Artists Section */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-display font-bold text-2xl uppercase tracking-tight">Top Artists</h2>
+        </div>
+        <div className="flex gap-6 overflow-x-auto pb-4 hide-scrollbar">
+          {artists.map((artist) => (
+            <div key={artist.id} className="min-w-fit">
+              <ArtistCard
+                id={artist.id}
+                name={artist.name}
+                avatarUrl={artist.avatarUrl}
+              />
+            </div>
           ))}
-        </section>
-      )}
+          {artists.length === 0 && (
+            <p className="text-gray-500 font-bold">No artists found.</p>
+          )}
+        </div>
+      </section>
 
-      {/* 
-        SeasonWarBanner and CanvasHighlights have been temporarily hidden 
-        to remove mock data until their APIs are implemented in future phases.
-      */}
+      {/* Trending Albums Section */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-display font-bold text-2xl uppercase tracking-tight">Trending Albums</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {albums.map((album) => (
+            <AlbumCard
+              key={album.id}
+              id={album.id}
+              title={album.title}
+              artist={album.artist?.name || 'Unknown'}
+              coverArtUrl={album.artworkUrl}
+            />
+          ))}
+          {albums.length === 0 && (
+            <div className="col-span-full py-8 flex flex-col items-center justify-center text-gray-500 border-4 border-dashed border-gray-300 bg-white shadow-[4px_4px_0_0_#000]">
+              <span className="font-display font-bold text-xl mb-2 text-black">No Albums Found</span>
+            </div>
+          )}
+        </div>
+      </section>
 
       <section className="pb-10">
         <div className="flex items-center justify-between mb-6">

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Compass, Grid, BarChart2, Users, User, ChevronDown, Settings, LogOut } from "lucide-react";
+import { Compass, Grid, BarChart2, Users, User, ChevronDown, Settings, LogOut, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/stores/userStore";
 
@@ -37,9 +37,29 @@ export function Sidebar() {
       className="w-[280px] h-full border-r-2 border-black bg-[var(--color-pw-surface-100)] flex flex-col p-4 relative"
       style={{ zIndex: 90 }}
     >
-      <div className="flex items-center mb-8 px-4 py-2">
-        <div className="text-2xl font-display font-bold uppercase tracking-tighter cursor-pointer" onClick={() => router.push('/')}>
-          Pixel<span className="text-[var(--color-pw-hot-pink)]">wave</span>
+      <div className="flex flex-col gap-6 mb-6">
+        <div className="flex items-center px-4 pt-2">
+          <div className="text-2xl font-display font-bold uppercase tracking-tighter cursor-pointer" onClick={() => router.push('/')}>
+            Pixel<span className="text-[var(--color-pw-hot-pink)]">wave</span>
+          </div>
+        </div>
+
+        <div className="px-4">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-gray-500 group-focus-within:text-[var(--color-pw-hot-pink)] transition-colors" />
+            </div>
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              className="w-full bg-white border-2 border-black rounded-lg py-2 pl-9 pr-3 text-sm font-body font-bold outline-none focus:shadow-[4px_4px_0_0_#000] focus:-translate-y-0.5 focus:-translate-x-0.5 transition-all"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  router.push(`/search?q=${encodeURIComponent(e.currentTarget.value.trim())}`);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
 

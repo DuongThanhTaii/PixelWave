@@ -33,6 +33,7 @@ import trackRoutes from './routes/track.routes';
 import sessionRoutes from './routes/session.routes';
 import uploadRoutes from './routes/upload.routes';
 import adminRoutes from './routes/admin.routes';
+import publicRoutes from './routes/public.routes';
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
@@ -49,6 +50,7 @@ app.use('/api/v1/tracks', trackRoutes);
 app.use('/api/v1/sessions', sessionRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/public', publicRoutes);
 
 app.get('/api/v1/health', (req, res) => {
   res.json({ status: 'ok', version: '1.0.0' });
