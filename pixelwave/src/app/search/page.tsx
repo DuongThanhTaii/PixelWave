@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchApi } from "@/lib/api";
 import { TrackCard } from "@/components/music/TrackCard";
 import { AlbumCard } from "@/components/music/AlbumCard";
 import { ArtistCard } from "@/components/music/ArtistCard";
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   
@@ -118,5 +118,13 @@ export default function SearchPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto p-4 md:p-8 font-bold animate-pulse">Loading search...</div>}>
+      <SearchContent />
+    </Suspense>
   );
 }
