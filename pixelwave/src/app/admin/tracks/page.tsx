@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { parseSRT, SrtLine } from '@/utils/srtParser';
-import { UploadCloud, Youtube } from 'lucide-react';
+import { UploadCloud, PlaySquare } from 'lucide-react';
 
 export default function TracksAdmin() {
   const [status, setStatus] = useState('');
@@ -229,7 +229,7 @@ export default function TracksAdmin() {
               <p className="text-sm font-normal normal-case text-[var(--color-pw-surface-100)] opacity-90">Upload MP3/WAV files directly</p>
             </button>
             <button onClick={() => setUploadMode('youtube')} className="group flex-1 border-4 border-black p-8 bg-[#ff3366] text-white hover:-translate-y-2 hover:-translate-x-2 shadow-[8px_8px_0_0_#000] hover:shadow-[12px_12px_0_0_#000] transition-all font-bold uppercase text-xl flex flex-col items-center justify-center gap-3">
-              <Youtube className="w-10 h-10 group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+              <PlaySquare className="w-10 h-10 group-hover:scale-110 transition-transform" strokeWidth={2.5} />
               <span>YouTube Link</span>
               <p className="text-sm font-normal normal-case text-[var(--color-pw-surface-100)] opacity-90">Stream via YouTube, auto-fetch info</p>
             </button>
