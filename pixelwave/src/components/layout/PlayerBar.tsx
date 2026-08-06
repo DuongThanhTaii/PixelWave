@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2 } from "lucide-react";
 import { usePlayerStore } from "@/stores/playerStore";
-import ReactPlayerComponent from "react-player/youtube";
+import ReactPlayerComponent from "react-player";
 import { NowPlayingOverlay } from "../music/NowPlayingOverlay";
 import { fetchApi } from "@/lib/api";
 import { useUserStore } from "@/stores/userStore";
