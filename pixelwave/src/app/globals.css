@@ -176,3 +176,48 @@ body {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* ---- Custom Webkit Scrollbars ---- */
+/* Large Scrollbar (Default) */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-100, #FAFAFF);
+  border-left: 2px solid #000;
+  border-top: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8bd3f8; /* Sky blue */
+  border: 2px solid #000;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pw-hot-pink);
+}
+
+/* Small Scrollbar */
+.scrollbar-sm::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-sm::-webkit-scrollbar-track {
+  background: transparent;
+  border: none;
+}
+
+.scrollbar-sm::-webkit-scrollbar-thumb {
+  background: #8bd3f8;
+  border: 1.5px solid #000;
+  border-radius: 9999px;
+}
+
+.scrollbar-sm::-webkit-scrollbar-thumb:hover {
+  background: var(--pw-hot-pink);
+}
+
