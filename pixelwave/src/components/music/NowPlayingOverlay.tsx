@@ -156,7 +156,7 @@ export function NowPlayingOverlay({
         </div>
 
         {/* Right: Lyrics */}
-        <div className="w-full lg:w-1/2 bg-black overflow-y-auto" style={{ minHeight: '300px' }}>
+        <div className="w-full lg:w-1/2 bg-black overflow-hidden flex flex-col" style={{ minHeight: '300px' }}>
           <LyricsViewer lyricsRaw={currentTrack.lyrics || ""} currentTime={playedSeconds} />
         </div>
       </div>
