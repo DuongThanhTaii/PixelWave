@@ -40,7 +40,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {
-          const data = await response.json();
+          const data = (await response.json()) as any;
           email = data.email;
           googleId = data.sub;
           name = data.name;
